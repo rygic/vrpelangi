@@ -1,124 +1,406 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>YouTube 360 VR - Bali Paradise</title>
+    <title>PELANGI - Legends & Origins of Sidoarjo</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background: #000;
+            box-sizing: border-box;
         }
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-align: center;
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
-            background: rgba(0,0,0,0.8);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid #333;
+            transition: opacity 1s ease;
         }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #fdbb2d, #b21f1f, #1a2a6c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #fdbb2d, #b21f1f);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
         #start-button {
-            padding: 15px 30px;
-            font-size: 18px;
-            background: #ff0000;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        #start-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        #main-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(to right, #fdbb2d, #b21f1f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #fdbb2d;
+        }
+        
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fdbb2d, #b21f1f, #1a2a6c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .cta-button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #fdbb2d, #b21f1f);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 50px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
         }
-        #start-button:hover {
-            background: #cc0000;
+        
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
+        
+        .vr-section {
+            padding: 5rem 2rem;
+            background: rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(to right, #fdbb2d, #b21f1f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .vr-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 500px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .features {
+            padding: 5rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #fdbb2d;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fdbb2d;
+        }
+        
+        .footer {
+            padding: 3rem 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+        
+        .footer p {
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        #youtube-player {
+            display: none;
+        }
+        
         #controls {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1000;
+            z-index: 100;
             display: flex;
             gap: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             padding: 10px;
             border-radius: 10px;
+            backdrop-filter: blur(10px);
         }
+        
         .control-btn {
             padding: 10px 20px;
-            background: #007bff;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            transition: background 0.3s ease;
         }
+        
         .control-btn:hover {
-            background: #0056b3;
+            background: rgba(255, 255, 255, 0.3);
         }
-        #youtube-player {
-            display: none;
-        }
-        #error-message {
-            color: #ff6b6b;
-            margin-top: 10px;
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .vr-container {
+                height: 300px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading dan Start Screen -->
-    <div id="loading">
-        <h2>YouTube 360° VR Experience</h2>
-        <p>Video: Bali Paradise 360°</p>
-        <div id="progress">Klik tombol di bawah untuk memulai</div>
-        <button id="start-button" onclick="initializeVR()">START VR EXPERIENCE</button>
-        <div id="error-message"></div>
-        <p style="font-size: 12px; margin-top: 20px; color: #ccc;">
-            Pastikan browser mendukung WebGL dan izinkan autoplay
-        </p>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="logo-container">
+            <div class="logo">PELANGI</div>
+            <p class="tagline">Introducing Legends and Origins of Sidoarjo for an Innovative Generation</p>
+        </div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loading-progress"></div>
+        </div>
+        <p id="loading-text">Memuat pengalaman budaya Sidoarjo...</p>
+        <button id="start-button" onclick="startExperience()">Mulai Perjalanan</button>
     </div>
 
-    <!-- A-Frame Scene -->
-    <a-scene vr-mode-ui="enabled: true" xr-mode-ui="enabled: true" renderer="antialias: true">
-        <!-- Video Sphere -->
-        <a-entity id="video-sphere" geometry="primitive: sphere; radius: 500" 
-                  scale="-1 1 1" rotation="0 90 0" visible="false">
-        </a-entity>
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Header -->
+        <header class="header">
+            <h1>PELANGI</h1>
+            <nav class="nav-links">
+                <a href="#home">Beranda</a>
+                <a href="#vr">VR Experience</a>
+                <a href="#about">Tentang</a>
+                <a href="#contact">Kontak</a>
+            </nav>
+        </header>
 
-        <!-- Kamera dengan kontrol VR -->
-        <a-entity camera look-controls wasd-controls position="0 0 0">
-            <a-cursor 
-                fuse="true"
-                fuse-timeout="2000"
-                animation__click="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-                animation__fusing="property: scale; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
-                animation__mouseleave="property: scale; to: 1 1 1; dur: 500">
-            </a-cursor>
-        </a-entity>
+        <!-- Hero Section -->
+        <section class="hero-section" id="home">
+            <h1 class="hero-title">Warisan Budaya Sidoarjo dalam 360°</h1>
+            <p class="hero-subtitle">
+                PELANGI adalah sebuah gerakan untuk melestarikan budaya Sidoarjo dengan membawanya ke era digital. 
+                Melalui teknologi Virtual Reality 360°, kami menawarkan pengalaman imersif yang membuat Anda merasa 
+                seolah-olah benar-benar berada di tengah seni, sejarah, dan kehidupan budaya Sidoarjo.
+            </p>
+            <button class="cta-button" onclick="enterVRExperience()">Jelajahi Sekarang</button>
+        </section>
 
-        <!-- Lighting -->
-        <a-entity light="type: ambient; color: #888; intensity: 0.5"></a-entity>
-        <a-entity light="type: directional; color: #fff; intensity: 0.8" position="5 5 5"></a-entity>
-    </a-scene>
+        <!-- VR Experience Section -->
+        <section class="vr-section" id="vr">
+            <h2 class="section-title">Pengalaman Virtual Reality 360°</h2>
+            <div class="vr-container">
+                <a-scene vr-mode-ui="enabled: true" xr-mode-ui="enabled: true" renderer="antialias: true">
+                    <!-- Video Sphere -->
+                    <a-entity id="video-sphere" geometry="primitive: sphere; radius: 500" 
+                              scale="-1 1 1" rotation="0 90 0" visible="false">
+                    </a-entity>
+
+                    <!-- Kamera dengan kontrol VR -->
+                    <a-entity camera look-controls wasd-controls position="0 0 0">
+                        <a-cursor 
+                            fuse="true"
+                            fuse-timeout="2000"
+                            animation__click="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                            animation__fusing="property: scale; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                            animation__mouseleave="property: scale; to: 1 1 1; dur: 500">
+                        </a-cursor>
+                    </a-entity>
+
+                    <!-- Lighting -->
+                    <a-entity light="type: ambient; color: #888; intensity: 0.5"></a-entity>
+                    <a-entity light="type: directional; color: #fff; intensity: 0.8" position="5 5 5"></a-entity>
+                </a-scene>
+            </div>
+            
+            <!-- Controls -->
+            <div id="controls" style="display: none;">
+                <button class="control-btn" onclick="togglePlayPause()">⏯️ Play/Pause</button>
+                <button class="control-btn" onclick="enterVR()">👓 Mode VR</button>
+                <button class="control-btn" onclick="toggleMute()">🔇 Mute/Unmute</button>
+                <button class="control-btn" onclick="restartVideo()">🔄 Restart</button>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="about">
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">Digitalisasi Budaya</h3>
+                <p>Membawa warisan budaya Sidoarjo ke platform digital untuk akses yang lebih luas oleh generasi muda.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👁️</div>
+                <h3 class="feature-title">Pengalaman Imersif</h3>
+                <p>Teknologi VR 360° memberikan pengalaman seolah-olah Anda benar-benar berada di lokasi budaya.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎓</div>
+                <h3 class="feature-title">Edukasi Interaktif</h3>
+                <p>Belajar tentang sejarah dan legenda Sidoarjo dengan cara yang menarik dan interaktif.</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer" id="contact">
+            <p>PELANGI - Introducing Legends and Origins of Sidoarjo for an Innovative Generation</p>
+            <p>© 2023 PELANGI Movement. All rights reserved.</p>
+            <p>contact@pelangi-sidoarjo.id | +62 812 3456 7890</p>
+        </footer>
+    </div>
 
     <!-- YouTube Player Container (Hidden) -->
     <div id="youtube-player"></div>
-
-    <!-- Controls -->
-    <div id="controls" style="display: none;">
-        <button class="control-btn" onclick="togglePlayPause()">⏯️ Play/Pause</button>
-        <button class="control-btn" onclick="enterVR()">👓 Enter VR</button>
-        <button class="control-btn" onclick="toggleMute()">🔇 Mute/Unmute</button>
-        <button class="control-btn" onclick="restartVideo()">🔄 Restart</button>
-    </div>
 
     <!-- YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -129,20 +411,56 @@
         let videoTexture;
         let isPlaying = false;
         let isInitialized = false;
-        const videoId = 'nV_hd6bLXmw';
+        const videoId = 'nV_hd6bLXmw'; // Video 360 Bali sebagai placeholder
 
-        // Fungsi initialize yang dipanggil oleh user click
-        function initializeVR() {
+        // Simulasi loading progress
+        function simulateLoading() {
+            let progress = 0;
+            const loadingProgress = document.getElementById('loading-progress');
+            const loadingText = document.getElementById('loading-text');
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                
+                loadingProgress.style.width = `${progress}%`;
+                
+                if (progress < 30) {
+                    loadingText.textContent = "Memuat aset budaya Sidoarjo...";
+                } else if (progress < 60) {
+                    loadingText.textContent = "Menyiapkan pengalaman VR...";
+                } else if (progress < 90) {
+                    loadingText.textContent = "Memuat konten 360°...";
+                } else {
+                    loadingText.textContent = "Siap untuk menjelajahi Sidoarjo!";
+                    clearInterval(progressInterval);
+                }
+            }, 300);
+        }
+
+        // Memulai pengalaman
+        function startExperience() {
+            document.getElementById('loading-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('main-content').style.opacity = '1';
+                }, 100);
+            }, 1000);
+            
+            // Inisialisasi YouTube Player setelah interaksi pengguna
+            initializeYouTubePlayer();
+        }
+
+        // Inisialisasi YouTube Player
+        function initializeYouTubePlayer() {
             if (isInitialized) return;
             
             isInitialized = true;
-            document.getElementById('start-button').style.display = 'none';
-            updateLoading('Memuat YouTube Player...');
             
             // Load YouTube API jika belum ready
             if (typeof YT === 'undefined') {
-                updateLoading('Loading YouTube API...');
-                setTimeout(initializeVR, 100);
+                setTimeout(initializeYouTubePlayer, 100);
                 return;
             }
             
@@ -150,8 +468,6 @@
         }
 
         function createYouTubePlayer() {
-            updateLoading('Membuat YouTube player...');
-            
             player = new YT.Player('youtube-player', {
                 height: '720',
                 width: '1280',
@@ -162,7 +478,7 @@
                     'rel': 0,
                     'modestbranding': 1,
                     'enablejsapi': 1,
-                    'autoplay': 1, // Sekarang diizinkan karena user interaction
+                    'autoplay': 0,
                     'iv_load_policy': 3,
                     'fs': 0
                 },
@@ -175,7 +491,6 @@
         }
 
         function onPlayerReady(event) {
-            updateLoading('YouTube player siap!');
             console.log('YouTube Player Ready');
             
             // Setup VR scene
@@ -183,57 +498,30 @@
         }
 
         function onPlayerStateChange(event) {
-            const statusElement = document.getElementById('progress');
-            
             switch(event.data) {
-                case YT.PlayerState.UNSTARTED:
-                    statusElement.textContent = 'Video belum dimulai';
-                    break;
-                case YT.PlayerState.ENDED:
-                    statusElement.textContent = 'Video selesai';
-                    isPlaying = false;
-                    break;
                 case YT.PlayerState.PLAYING:
-                    statusElement.textContent = 'Video diputar';
                     isPlaying = true;
-                    hideLoading();
+                    document.getElementById('controls').style.display = 'flex';
                     break;
                 case YT.PlayerState.PAUSED:
-                    statusElement.textContent = 'Video dijeda';
                     isPlaying = false;
                     break;
-                case YT.PlayerState.BUFFERING:
-                    statusElement.textContent = 'Buffering...';
-                    break;
-                case YT.PlayerState.CUED:
-                    statusElement.textContent = 'Video siap';
+                case YT.PlayerState.ENDED:
+                    isPlaying = false;
                     break;
             }
         }
 
         function onPlayerError(event) {
             console.error('YouTube Error:', event.data);
-            const errorMessages = {
-                2: 'ID video tidak valid',
-                5: 'Error HTML5 player',
-                100: 'Video tidak ditemukan',
-                101: 'Tidak bisa diputar di embedded player',
-                150: 'Tidak bisa diputar di embedded player'
-            };
-            
-            const errorMsg = errorMessages[event.data] || 'Error tidak diketahui';
-            showError('YouTube Error: ' + errorMsg);
         }
 
         function setupVRScene() {
-            updateLoading('Menyiapkan lingkungan VR...');
-            
             // Tunggu sebentar untuk memastikan video element tersedia
             setTimeout(() => {
                 const youtubeVideo = document.querySelector('#youtube-player video');
                 
                 if (!youtubeVideo) {
-                    updateLoading('Menunggu video element...');
                     setTimeout(setupVRScene, 500);
                     return;
                 }
@@ -247,8 +535,6 @@
         }
 
         function setupVideoTexture(videoElement) {
-            updateLoading('Membuat texture video...');
-            
             const sceneEl = document.querySelector('a-scene');
             const videoSphere = document.getElementById('video-sphere');
             
@@ -263,7 +549,6 @@
 
         function applyVideoTexture(videoElement, videoSphere) {
             const sceneEl = document.querySelector('a-scene');
-            const threeScene = sceneEl.object3D;
             
             try {
                 // Buat Three.js texture
@@ -283,38 +568,10 @@
                 if (mesh) {
                     mesh.material = material;
                     videoSphere.setAttribute('visible', 'true');
-                    updateLoading('VR siap! Memulai video...');
-                    
-                    // Play video setelah semua setup selesai
-                    setTimeout(() => {
-                        player.playVideo();
-                    }, 500);
                 }
             } catch (error) {
                 console.error('Error creating texture:', error);
-                showError('Error creating VR texture: ' + error.message);
             }
-        }
-
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('controls').style.display = 'flex';
-        }
-
-        function updateLoading(message) {
-            const progress = document.getElementById('progress');
-            if (progress) {
-                progress.textContent = message;
-            }
-            console.log('Status:', message);
-        }
-
-        function showError(message) {
-            const errorElement = document.getElementById('error-message');
-            if (errorElement) {
-                errorElement.textContent = message;
-            }
-            console.error('Error:', message);
         }
 
         // Fungsi kontrol
@@ -333,10 +590,8 @@
             
             if (player.isMuted()) {
                 player.unMute();
-                updateLoading('Sound unmuted');
             } else {
                 player.mute();
-                updateLoading('Sound muted');
             }
         }
 
@@ -351,25 +606,30 @@
             if (player) {
                 player.seekTo(0);
                 player.playVideo();
-                updateLoading('Restarting video...');
             }
         }
 
-        // Auto-initialize jika user klik dimanapun (fallback)
-        document.addEventListener('click', function() {
-            if (!isInitialized) {
-                initializeVR();
-            }
-        });
+        function enterVRExperience() {
+            // Scroll ke bagian VR
+            document.getElementById('vr').scrollIntoView({ behavior: 'smooth' });
+            
+            // Mulai video setelah delay
+            setTimeout(() => {
+                if (player) {
+                    player.playVideo();
+                }
+            }, 1000);
+        }
 
-        // Handle visibility change (tab switching)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && player && isPlaying) {
-                player.pauseVideo();
-            }
-        });
+        // Inisialisasi saat halaman dimuat
+        window.onload = function() {
+            simulateLoading();
+        };
 
-        console.log('VR Experience loaded. Click to start.');
+        // YouTube API ready callback
+        function onYouTubeIframeAPIReady() {
+            // Player akan dibuat setelah interaksi pengguna
+        }
     </script>
 </body>
 </html>
