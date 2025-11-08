@@ -11,6 +11,7 @@
             padding: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
+            background: #000;
         }
         #loading {
             position: absolute;
@@ -20,9 +21,24 @@
             color: white;
             text-align: center;
             z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            padding: 20px;
-            border-radius: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #333;
+        }
+        #start-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        #start-button:hover {
+            background: #cc0000;
         }
         #controls {
             position: absolute;
@@ -32,8 +48,11 @@
             z-index: 1000;
             display: flex;
             gap: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 10px;
         }
-        button {
+        .control-btn {
             padding: 10px 20px;
             background: #007bff;
             color: white;
@@ -42,25 +61,34 @@
             cursor: pointer;
             font-size: 14px;
         }
-        button:hover {
+        .control-btn:hover {
             background: #0056b3;
         }
         #youtube-player {
             display: none;
         }
+        #error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <!-- Loading Indicator -->
+    <!-- Loading dan Start Screen -->
     <div id="loading">
-        <h2>Loading YouTube 360 VR Experience</h2>
-        <p>Loading video: Bali Paradise 360°</p>
-        <div id="progress">Initializing...</div>
+        <h2>YouTube 360° VR Experience</h2>
+        <p>Video: Bali Paradise 360°</p>
+        <div id="progress">Klik tombol di bawah untuk memulai</div>
+        <button id="start-button" onclick="initializeVR()">START VR EXPERIENCE</button>
+        <div id="error-message"></div>
+        <p style="font-size: 12px; margin-top: 20px; color: #ccc;">
+            Pastikan browser mendukung WebGL dan izinkan autoplay
+        </p>
     </div>
 
     <!-- A-Frame Scene -->
-    <a-scene vr-mode-ui="enabled: true" xr-mode-ui="enabled: true">
-        <!-- Video Sphere akan dibuat via JavaScript -->
+    <a-scene vr-mode-ui="enabled: true" xr-mode-ui="enabled: true" renderer="antialias: true">
+        <!-- Video Sphere -->
         <a-entity id="video-sphere" geometry="primitive: sphere; radius: 500" 
                   scale="-1 1 1" rotation="0 90 0" visible="false">
         </a-entity>
@@ -86,9 +114,10 @@
 
     <!-- Controls -->
     <div id="controls" style="display: none;">
-        <button onclick="togglePlayPause()">Play/Pause</button>
-        <button onclick="enterVR()">Enter VR</button>
-        <button onclick="toggleMute()">Mute/Unmute</button>
+        <button class="control-btn" onclick="togglePlayPause()">⏯️ Play/Pause</button>
+        <button class="control-btn" onclick="enterVR()">👓 Enter VR</button>
+        <button class="control-btn" onclick="toggleMute()">🔇 Mute/Unmute</button>
+        <button class="control-btn" onclick="restartVideo()">🔄 Restart</button>
     </div>
 
     <!-- YouTube IFrame API -->
@@ -99,15 +128,33 @@
         let player;
         let videoTexture;
         let isPlaying = false;
-        const videoId = 'nV_hd6bLXmw'; // ID dari link YouTube Anda
+        let isInitialized = false;
+        const videoId = 'nV_hd6bLXmw';
 
-        // YouTube API ready callback
-        function onYouTubeIframeAPIReady() {
-            updateLoading('Creating YouTube player...');
+        // Fungsi initialize yang dipanggil oleh user click
+        function initializeVR() {
+            if (isInitialized) return;
+            
+            isInitialized = true;
+            document.getElementById('start-button').style.display = 'none';
+            updateLoading('Memuat YouTube Player...');
+            
+            // Load YouTube API jika belum ready
+            if (typeof YT === 'undefined') {
+                updateLoading('Loading YouTube API...');
+                setTimeout(initializeVR, 100);
+                return;
+            }
+            
+            createYouTubePlayer();
+        }
+
+        function createYouTubePlayer() {
+            updateLoading('Membuat YouTube player...');
             
             player = new YT.Player('youtube-player', {
-                height: '1080',
-                width: '1920',
+                height: '720',
+                width: '1280',
                 videoId: videoId,
                 playerVars: {
                     'playsinline': 1,
@@ -115,8 +162,9 @@
                     'rel': 0,
                     'modestbranding': 1,
                     'enablejsapi': 1,
-                    'autoplay': 0, // Mulai dengan paused untuk kontrol yang lebih baik
-                    'iv_load_policy': 3
+                    'autoplay': 1, // Sekarang diizinkan karena user interaction
+                    'iv_load_policy': 3,
+                    'fs': 0
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -127,96 +175,130 @@
         }
 
         function onPlayerReady(event) {
-            updateLoading('YouTube player ready, setting up VR...');
+            updateLoading('YouTube player siap!');
             console.log('YouTube Player Ready');
             
-            // Setup VR scene setelah player ready
-            setTimeout(setupVRScene, 500);
+            // Setup VR scene
+            setupVRScene();
         }
 
         function onPlayerStateChange(event) {
-            const states = {
-                '-1': 'unstarted',
-                '0': 'ended',
-                '1': 'playing',
-                '2': 'paused',
-                '3': 'buffering',
-                '5': 'video cued'
-            };
+            const statusElement = document.getElementById('progress');
             
-            console.log('Player state:', states[event.data]);
-            
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                updateLoading('Video playing, finalizing VR setup...');
-                document.getElementById('controls').style.display = 'flex';
-                document.getElementById('loading').style.display = 'none';
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-            } else if (event.data === YT.PlayerState.BUFFERING) {
-                updateLoading('Buffering video...');
+            switch(event.data) {
+                case YT.PlayerState.UNSTARTED:
+                    statusElement.textContent = 'Video belum dimulai';
+                    break;
+                case YT.PlayerState.ENDED:
+                    statusElement.textContent = 'Video selesai';
+                    isPlaying = false;
+                    break;
+                case YT.PlayerState.PLAYING:
+                    statusElement.textContent = 'Video diputar';
+                    isPlaying = true;
+                    hideLoading();
+                    break;
+                case YT.PlayerState.PAUSED:
+                    statusElement.textContent = 'Video dijeda';
+                    isPlaying = false;
+                    break;
+                case YT.PlayerState.BUFFERING:
+                    statusElement.textContent = 'Buffering...';
+                    break;
+                case YT.PlayerState.CUED:
+                    statusElement.textContent = 'Video siap';
+                    break;
             }
         }
 
         function onPlayerError(event) {
-            console.error('YouTube Player Error:', event.data);
-            updateLoading('Error loading video. Please refresh the page.');
+            console.error('YouTube Error:', event.data);
+            const errorMessages = {
+                2: 'ID video tidak valid',
+                5: 'Error HTML5 player',
+                100: 'Video tidak ditemukan',
+                101: 'Tidak bisa diputar di embedded player',
+                150: 'Tidak bisa diputar di embedded player'
+            };
+            
+            const errorMsg = errorMessages[event.data] || 'Error tidak diketahui';
+            showError('YouTube Error: ' + errorMsg);
         }
 
         function setupVRScene() {
-            updateLoading('Setting up VR environment...');
+            updateLoading('Menyiapkan lingkungan VR...');
             
-            const youtubeVideo = document.querySelector('#youtube-player video');
-            
-            if (!youtubeVideo) {
-                updateLoading('Waiting for video element...');
-                setTimeout(setupVRScene, 500);
-                return;
-            }
+            // Tunggu sebentar untuk memastikan video element tersedia
+            setTimeout(() => {
+                const youtubeVideo = document.querySelector('#youtube-player video');
+                
+                if (!youtubeVideo) {
+                    updateLoading('Menunggu video element...');
+                    setTimeout(setupVRScene, 500);
+                    return;
+                }
 
-            // Dapatkan scene dan entity
-            const scene = document.querySelector('a-scene');
+                // Set video properties
+                youtubeVideo.crossOrigin = "anonymous";
+                youtubeVideo.playsInline = true;
+                
+                setupVideoTexture(youtubeVideo);
+            }, 1000);
+        }
+
+        function setupVideoTexture(videoElement) {
+            updateLoading('Membuat texture video...');
+            
+            const sceneEl = document.querySelector('a-scene');
             const videoSphere = document.getElementById('video-sphere');
             
-            // Tunggu hingga A-Frame selesai load
-            if (!scene.hasLoaded) {
-                scene.addEventListener('loaded', function() {
-                    createVideoTexture(youtubeVideo, videoSphere);
+            if (!sceneEl.hasLoaded) {
+                sceneEl.addEventListener('loaded', () => {
+                    applyVideoTexture(videoElement, videoSphere);
                 });
             } else {
-                createVideoTexture(youtubeVideo, videoSphere);
+                applyVideoTexture(videoElement, videoSphere);
             }
         }
 
-        function createVideoTexture(videoElement, videoSphere) {
-            updateLoading('Creating video texture...');
-            
-            // Buat Three.js texture dari video element
+        function applyVideoTexture(videoElement, videoSphere) {
             const sceneEl = document.querySelector('a-scene');
             const threeScene = sceneEl.object3D;
             
-            // Buat texture
-            videoTexture = new THREE.VideoTexture(videoElement);
-            videoTexture.minFilter = THREE.LinearFilter;
-            videoTexture.magFilter = THREE.LinearFilter;
-            videoTexture.format = THREE.RGBFormat;
-            
-            // Buat material dengan texture
-            const material = new THREE.MeshBasicMaterial({
-                map: videoTexture,
-                side: THREE.DoubleSide
-            });
-            
-            // Terapkan material ke sphere
-            videoSphere.getObject3D('mesh').material = material;
-            videoSphere.setAttribute('visible', 'true');
-            
-            updateLoading('Ready! Starting video...');
-            
-            // Mulai video setelah setup selesai
-            setTimeout(() => {
-                player.playVideo();
-            }, 1000);
+            try {
+                // Buat Three.js texture
+                videoTexture = new THREE.VideoTexture(videoElement);
+                videoTexture.minFilter = THREE.LinearFilter;
+                videoTexture.magFilter = THREE.LinearFilter;
+                videoTexture.format = THREE.RGBFormat;
+                
+                // Buat material
+                const material = new THREE.MeshBasicMaterial({
+                    map: videoTexture,
+                    side: THREE.DoubleSide
+                });
+                
+                // Terapkan ke sphere
+                const mesh = videoSphere.getObject3D('mesh');
+                if (mesh) {
+                    mesh.material = material;
+                    videoSphere.setAttribute('visible', 'true');
+                    updateLoading('VR siap! Memulai video...');
+                    
+                    // Play video setelah semua setup selesai
+                    setTimeout(() => {
+                        player.playVideo();
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Error creating texture:', error);
+                showError('Error creating VR texture: ' + error.message);
+            }
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('controls').style.display = 'flex';
         }
 
         function updateLoading(message) {
@@ -224,11 +306,21 @@
             if (progress) {
                 progress.textContent = message;
             }
-            console.log('Loading:', message);
+            console.log('Status:', message);
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+            console.error('Error:', message);
         }
 
         // Fungsi kontrol
         function togglePlayPause() {
+            if (!player) return;
+            
             if (isPlaying) {
                 player.pauseVideo();
             } else {
@@ -237,32 +329,47 @@
         }
 
         function toggleMute() {
+            if (!player) return;
+            
             if (player.isMuted()) {
                 player.unMute();
+                updateLoading('Sound unmuted');
             } else {
                 player.mute();
+                updateLoading('Sound muted');
             }
         }
 
         function enterVR() {
             const scene = document.querySelector('a-scene');
-            if (scene.hasAttribute('vr-mode-ui')) {
+            if (scene && scene.enterVR) {
                 scene.enterVR();
             }
         }
 
-        // Handle window resize
-        window.addEventListener('resize', function() {
+        function restartVideo() {
             if (player) {
-                // YouTube player akan menyesuaikan ukuran otomatis
+                player.seekTo(0);
+                player.playVideo();
+                updateLoading('Restarting video...');
+            }
+        }
+
+        // Auto-initialize jika user klik dimanapun (fallback)
+        document.addEventListener('click', function() {
+            if (!isInitialized) {
+                initializeVR();
             }
         });
 
-        // Error handling untuk A-Frame
-        document.querySelector('a-scene').addEventListener('error', function(e) {
-            console.error('A-Frame error:', e);
-            updateLoading('Error in VR setup. Please check console.');
+        // Handle visibility change (tab switching)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && player && isPlaying) {
+                player.pauseVideo();
+            }
         });
+
+        console.log('VR Experience loaded. Click to start.');
     </script>
 </body>
 </html>
