@@ -67,7 +67,7 @@
             font-weight: bold;
         }
         
-        #loading {
+        #start-screen {
             position: fixed;
             top: 0;
             left: 0;
@@ -81,13 +81,23 @@
             z-index: 1000;
         }
         
-        .loading-text {
-            margin-top: 20px;
-            font-size: 1rem;
-            color: #fdbb2d;
+        .start-button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #fdbb2d;
+            color: black;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 2rem;
+            font-weight: bold;
         }
         
-        #debug {
+        #youtube-player {
+            display: none;
+        }
+
+        #status {
             position: fixed;
             top: 80px;
             left: 10px;
@@ -96,27 +106,28 @@
             border-radius: 5px;
             font-size: 12px;
             z-index: 100;
-            max-width: 300px;
-        }
-        
-        #youtube-player {
-            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading">
+    <!-- Start Screen -->
+    <div id="start-screen">
         <div class="logo">PELANGI</div>
-        <div class="loading-text" id="status-text">Memulai pengalaman VR...</div>
-        <button class="control-btn" onclick="forcePlay()" style="margin-top: 20px;">Klik jika video tidak muncul</button>
+        <div style="text-align: center; margin-top: 1rem;">
+            <div>Legends & Origins of Sidoarjo</div>
+            <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">VR 360° Experience</div>
+        </div>
+        <button class="start-button" onclick="startExperience()">MULAI PENGALAMAN VR</button>
+        <div style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">
+            Klik tombol di atas untuk memulai
+        </div>
     </div>
 
-    <!-- Debug Info -->
-    <div id="debug"></div>
+    <!-- Status -->
+    <div id="status"></div>
 
     <!-- Header -->
-    <div id="header">
+    <div id="header" style="display: none;">
         <div class="logo">PELANGI</div>
         <div>Legends & Origins of Sidoarjo - VR Experience</div>
     </div>
@@ -128,13 +139,6 @@
         renderer="colorManagement: true; antialias: true"
         background="color: #000000">
         
-        <!-- Assets -->
-        <a-assets>
-            <video id="video360" crossorigin="anonymous" loop playsinline webkit-playsinline>
-                <!-- Video akan dimuat via JavaScript -->
-            </video>
-        </a-assets>
-
         <!-- Video Sphere -->
         <a-videosphere 
             id="videosphere"
@@ -155,204 +159,122 @@
         <button class="control-btn" onclick="toggleMute()">🔇 Mute</button>
     </div>
 
-    <!-- YouTube Player (Hidden) -->
-    <div id="youtube-player"></div>
-
     <script>
-        let player;
         let videoElement;
         let isPlaying = false;
-        const videoId = 'nV_hd6bLXmw';
+        
+        // Video 360° URL (gunakan direct video link jika memungkinkan)
+        // Untuk demo, kita gunakan video 360° dari sumber lain yang lebih kompatibel
+        const videoUrls = [
+            'https://cdn.aframe.io/360-video-boilerplate/video-360.mp4',
+            'https://raw.githubusercontent.com/aframevr/aframe/master/examples/boilerplate/360-video/video-360.mp4'
+        ];
 
-        // Debug logging
-        function debugLog(message) {
-            const debugDiv = document.getElementById('debug');
-            debugDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
             console.log(message);
         }
 
-        function updateStatus(message) {
-            document.getElementById('status-text').textContent = message;
-            debugLog(message);
+        function startExperience() {
+            updateStatus("Memulai pengalaman VR...");
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('header').style.display = 'block';
+            
+            initializeVideo();
         }
 
-        // Force play function
-        function forcePlay() {
-            updateStatus("Memaksa pemutaran video...");
-            if (videoElement) {
-                videoElement.play().catch(e => {
-                    debugLog("Error force play: " + e.message);
-                });
-            }
-            if (player && player.playVideo) {
-                player.playVideo();
-            }
+        function initializeVideo() {
+            updateStatus("Menginisialisasi video...");
+            
+            // Method 1: Gunakan video langsung (lebih reliable di GitHub Pages)
+            setupDirectVideo();
         }
 
-        // Initialize when page loads
-        window.onload = function() {
-            updateStatus("Halaman dimuat, inisialisasi YouTube API...");
+        function setupDirectVideo() {
+            updateStatus("Menyiapkan video langsung...");
             
-            // Load YouTube API
-            const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        };
-
-        // YouTube API callback
-        function onYouTubeIframeAPIReady() {
-            updateStatus("YouTube API Ready, membuat player...");
+            // Create video element
+            videoElement = document.createElement('video');
+            videoElement.id = 'video360';
+            videoElement.src = videoUrls[0]; // Gunakan URL pertama
+            videoElement.crossOrigin = 'anonymous';
+            videoElement.loop = true;
+            videoElement.playsInline = true;
+            videoElement.muted = true; // Mute untuk bypass autoplay policy
+            videoElement.setAttribute('webkit-playsinline', 'true');
             
-            player = new YT.Player('youtube-player', {
-                width: '1280',
-                height: '720',
-                videoId: videoId,
-                playerVars: {
-                    'playsinline': 1,
-                    'controls': 0,
-                    'rel': 0,
-                    'modestbranding': 1,
-                    'enablejsapi': 1,
-                    'autoplay': 0, // Jangan autoplay dulu
-                    'iv_load_policy': 3
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange,
-                    'onError': onPlayerError
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            updateStatus("YouTube Player Ready");
-            debugLog("Player duration: " + player.getDuration());
+            // Add to A-Frame assets
+            const assets = document.createElement('a-assets');
+            assets.appendChild(videoElement);
+            document.querySelector('a-scene').appendChild(assets);
             
-            // Dapatkan video element dari YouTube player
-            setTimeout(() => {
-                videoElement = document.querySelector('#youtube-player video');
-                if (videoElement) {
-                    setupVideoElement(videoElement);
-                } else {
-                    updateStatus("Video element tidak ditemukan, mencoba lagi...");
-                    setTimeout(() => {
-                        videoElement = document.querySelector('#youtube-player video');
-                        if (videoElement) setupVideoElement(videoElement);
-                    }, 1000);
-                }
-            }, 1000);
-        }
-
-        function setupVideoElement(video) {
-            updateStatus("Mengatur video element...");
-            
-            // Set properti video
-            video.setAttribute('crossorigin', 'anonymous');
-            video.setAttribute('playsinline', 'true');
-            video.setAttribute('webkit-playsinline', 'true');
-            video.setAttribute('muted', 'true'); // Mute dulu untuk bypass autoplay
-            video.loop = true;
-            
-            debugLog("Video properties set: " + video.readyState);
-            
-            // Setup A-Frame video texture
-            setupAFrameVideo(video);
-        }
-
-        function setupAFrameVideo(video) {
-            updateStatus("Menyiapkan A-Frame video...");
-            
-            const aScene = document.querySelector('a-scene');
-            const videosphere = document.getElementById('videosphere');
-            const assetsVideo = document.getElementById('video360');
-            
-            // Replace the source of assets video
-            if (assetsVideo) {
-                // Clone YouTube video properties to A-Frame video
-                assetsVideo.src = video.src;
-                assetsVideo.muted = true;
-                assetsVideo.loop = true;
-                assetsVideo.playsInline = true;
-                
-                updateStatus("Video source diterapkan ke A-Frame");
-                
-                // Tunggu A-Frame siap
-                if (aScene.hasLoaded) {
-                    startVideoPlayback();
-                } else {
-                    aScene.addEventListener('loaded', startVideoPlayback);
-                }
+            // Wait for A-Frame to load
+            const scene = document.querySelector('a-scene');
+            if (scene.hasLoaded) {
+                startVideoPlayback();
+            } else {
+                scene.addEventListener('loaded', startVideoPlayback);
             }
         }
 
         function startVideoPlayback() {
             updateStatus("Memulai pemutaran video...");
             
-            const assetsVideo = document.getElementById('video360');
+            const videosphere = document.getElementById('videosphere');
             
-            // Coba play video
-            assetsVideo.play().then(() => {
+            // Try to play video
+            videoElement.play().then(() => {
                 updateStatus("Video berhasil diputar!");
                 isPlaying = true;
                 
-                // Sembunyikan loading, tampilkan controls
-                document.getElementById('loading').style.display = 'none';
+                // Show controls
                 document.getElementById('controls').style.display = 'flex';
                 
-                // Play YouTube player juga (untuk audio)
-                if (player && player.playVideo) {
-                    player.playVideo();
-                }
-                
             }).catch(error => {
-                debugLog("Error playing video: " + error.message);
-                updateStatus("Butuh interaksi user untuk memutar video");
-                
-                // Tampilkan instruksi
-                document.getElementById('status-text').innerHTML = 
-                    "Klik tombol di bawah untuk memulai video<br><small>Browser membutuhkan interaksi user</small>";
+                updateStatus("Error: " + error.message);
+                showRetryButton();
             });
         }
 
-        function onPlayerStateChange(event) {
-            const states = ['UNSTARTED', 'ENDED', 'PLAYING', 'PAUSED', 'BUFFERING', 'CUED'];
-            debugLog("YouTube state: " + states[event.data]);
+        function showRetryButton() {
+            const retryButton = document.createElement('button');
+            retryButton.textContent = 'COBA LAGI';
+            retryButton.className = 'control-btn';
+            retryButton.style.background = '#ff4444';
+            retryButton.onclick = retryVideo;
             
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-            }
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('controls').appendChild(retryButton);
         }
 
-        function onPlayerError(event) {
-            debugLog("YouTube error: " + event.data);
-            updateStatus("Error YouTube: " + event.data);
+        function retryVideo() {
+            updateStatus("Mencoba lagi...");
+            if (videoElement) {
+                videoElement.play().then(() => {
+                    updateStatus("Berhasil!");
+                    isPlaying = true;
+                }).catch(e => {
+                    updateStatus("Masih error: " + e.message);
+                });
+            }
         }
 
         // Control functions
         function togglePlay() {
-            const assetsVideo = document.getElementById('video360');
-            if (isPlaying) {
-                assetsVideo.pause();
-                if (player) player.pauseVideo();
-            } else {
-                assetsVideo.play();
-                if (player) player.playVideo();
+            if (videoElement) {
+                if (isPlaying) {
+                    videoElement.pause();
+                } else {
+                    videoElement.play();
+                }
+                isPlaying = !isPlaying;
             }
-            isPlaying = !isPlaying;
         }
 
         function toggleMute() {
-            const assetsVideo = document.getElementById('video360');
-            assetsVideo.muted = !assetsVideo.muted;
-            if (player) {
-                if (player.isMuted()) {
-                    player.unMute();
-                } else {
-                    player.mute();
-                }
+            if (videoElement) {
+                videoElement.muted = !videoElement.muted;
+                updateStatus(videoElement.muted ? "Muted" : "Unmuted");
             }
         }
 
@@ -363,34 +285,41 @@
             }
         }
 
-        // Click anywhere to start (for autoplay policies)
+        // Fallback: Jika video utama gagal, coba URL alternatif
+        function tryAlternativeVideo() {
+            updateStatus("Mencoba video alternatif...");
+            if (videoElement && videoUrls[1]) {
+                videoElement.src = videoUrls[1];
+                videoElement.load();
+                setTimeout(() => {
+                    videoElement.play().catch(e => {
+                        updateStatus("Video alternatif juga gagal");
+                    });
+                }, 1000);
+            }
+        }
+
+        // Auto-retry after 3 seconds if failed
+        setTimeout(() => {
+            if (!isPlaying) {
+                updateStatus("Auto-retry...");
+                if (videoElement) {
+                    videoElement.play().catch(e => {
+                        tryAlternativeVideo();
+                    });
+                }
+            }
+        }, 3000);
+
+        // Click anywhere to play (fallback)
         document.addEventListener('click', function() {
-            const loading = document.getElementById('loading');
-            if (loading.style.display !== 'none') {
-                forcePlay();
+            if (videoElement && !isPlaying) {
+                videoElement.play().then(() => {
+                    isPlaying = true;
+                    updateStatus("Video dimulai via click!");
+                });
             }
         });
-
-        // Alternative: Direct video element approach
-        function setupDirectVideo() {
-            updateStatus("Mencoba metode direct video...");
-            
-            // Create video element directly
-            const directVideo = document.createElement('video');
-            directVideo.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0`;
-            directVideo.crossOrigin = "anonymous";
-            directVideo.loop = true;
-            directVideo.playsInline = true;
-            directVideo.muted = true;
-            
-            document.body.appendChild(directVideo);
-            
-            directVideo.play().then(() => {
-                updateStatus("Direct video berhasil!");
-            }).catch(e => {
-                debugLog("Direct video error: " + e.message);
-            });
-        }
     </script>
 </body>
 </html>
