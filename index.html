@@ -173,6 +173,45 @@
             margin-top: 10px;
         }
         
+        #video-controls {
+            position: absolute;
+            top: 120px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            border-right: 4px solid #1a2a6c;
+            pointer-events: auto;
+        }
+        
+        #video-controls h3 {
+            color: #fdbb2d;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .control-btn {
+            background: #1a2a6c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: #2a3a9c;
+        }
+        
+        .control-btn.active {
+            background: #b21f1f;
+        }
+        
         #navigation {
             position: absolute;
             bottom: 30px;
@@ -213,7 +252,7 @@
             text-align: right;
         }
         
-        #video-error {
+        #video-status {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -227,6 +266,14 @@
             display: none;
         }
         
+        .status-success {
+            color: #4CAF50;
+        }
+        
+        .status-error {
+            color: #f44336;
+        }
+        
         @media (max-width: 768px) {
             #header h1 {
                 font-size: 1.4rem;
@@ -238,6 +285,10 @@
             
             #info-panel {
                 max-width: 280px;
+            }
+            
+            #video-controls {
+                max-width: 250px;
             }
             
             .nav-btn {
@@ -259,10 +310,10 @@
         <div class="loading-text" id="loading-text">Memuat pengalaman VR...</div>
     </div>
 
-    <!-- Error Message -->
-    <div id="video-error">
-        <h3>Video Tidak Dapat Dimuat</h3>
-        <p>Pastikan koneksi internet stabil dan video tersedia.</p>
+    <!-- Video Status Message -->
+    <div id="video-status">
+        <h3 id="status-title">Status Video</h3>
+        <p id="status-message"></p>
         <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer;">Coba Lagi</button>
     </div>
 
@@ -297,8 +348,15 @@
             <div class="vr-badge">VR Technology Experience</div>
         </div>
         
+        <!-- Video Controls -->
+        <div id="video-controls">
+            <h3>Kontrol Video</h3>
+            <button class="control-btn" id="play-toggle">⏸️ Jeda</button>
+            <button class="control-btn" id="mute-toggle">🔊 Suara</button>
+            <button class="control-btn" id="reload-video">🔄 Muat Ulang</button>
+        </div>
+        
         <div id="navigation">
-            <button class="nav-btn" id="play-btn">▶</button>
             <button class="nav-btn" id="vr-btn">👓</button>
             <button class="nav-btn" id="fullscreen-btn">⛶</button>
         </div>
@@ -311,19 +369,25 @@
 
     <!-- A-Frame Scene -->
     <a-scene>
-        <!-- Assets dengan video langsung -->
+        <!-- Assets -->
         <a-assets>
-            <!-- Video 360 dari YouTube menggunakan iframe -->
-            <video id="sidoarjo-video" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline>
-                <!-- Fallback video source -->
-                <source src="https://www.youtube.com/embed/5Jyx7XXESI4?si=KWjoZC6wPKnn3516" type="video/mp4">
+            <!-- Video dari Google Drive Anda -->
+            <video id="sidoarjo-video" 
+                    autoplay 
+                    loop 
+                    crossorigin="anonymous" 
+                    playsinline 
+                    webkit-playsinline
+                    muted>
+                <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/mp4">
             </video>
         </a-assets>
 
         <!-- Sky dengan video 360 -->
         <a-videosphere 
             src="#sidoarjo-video"
-            rotation="0 -90 0">
+            rotation="0 -90 0"
+            id="video-sphere">
         </a-videosphere>
 
         <!-- Kamera dengan kontrol VR -->
@@ -332,11 +396,20 @@
         </a-entity>
 
         <!-- Obyek 3D interaktif -->
-        <a-entity id="legend-marker" geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5" 
+        <a-entity id="legend-marker" 
+                  geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5" 
                   material="color: #fdbb2d; shader: flat" 
                   position="3 1.5 -5" 
                   animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
             <a-text value="Legenda Sidoarjo" align="center" position="0 0.8 0" color="#1a2a6c" scale="2 2 2"></a-text>
+        </a-entity>
+
+        <!-- Informasi tambahan -->
+        <a-entity id="info-point-1" geometry="primitive: sphere; radius: 0.3" 
+                  material="color: #1a2a6c" 
+                  position="-2 1.8 -3"
+                  animation="property: position; to: -2 2.2 -3; dir: alternate; loop: true; dur: 2000">
+            <a-text value="Sejarah" align="center" position="0 0.5 0" color="#ffffff" scale="1.5 1.5 1.5"></a-text>
         </a-entity>
 
         <!-- Lighting -->
@@ -360,8 +433,14 @@
         const loadingBar = document.getElementById('loading-bar');
         const loadingText = document.getElementById('loading-text');
         const loadingScreen = document.getElementById('loading-screen');
-        const videoError = document.getElementById('video-error');
+        const videoStatus = document.getElementById('video-status');
+        const statusTitle = document.getElementById('status-title');
+        const statusMessage = document.getElementById('status-message');
         const retryBtn = document.getElementById('retry-btn');
+        
+        // Video state
+        let isPlaying = true;
+        let isMuted = true;
         
         const loadingInterval = setInterval(() => {
             progress += Math.random() * 10;
@@ -374,7 +453,7 @@
             } else if (progress < 60) {
                 loadingText.textContent = "Menyiapkan lingkungan VR...";
             } else if (progress < 90) {
-                loadingText.textContent = "Memuat konten legenda Sidoarjo...";
+                loadingText.textContent = "Memuat video 360...";
             } else {
                 loadingText.textContent = "Hampir selesai...";
             }
@@ -394,18 +473,56 @@
         // Cek status video
         function checkVideoStatus() {
             const video = document.querySelector('#sidoarjo-video');
+            
+            // Event listeners untuk video
+            video.addEventListener('loadeddata', () => {
+                showVideoStatus('success', 'Video berhasil dimuat!', 2000);
+            });
+            
+            video.addEventListener('error', () => {
+                showVideoStatus('error', 'Gagal memuat video. Pastikan koneksi internet stabil.');
+            });
+            
+            video.addEventListener('waiting', () => {
+                showVideoStatus('loading', 'Video sedang dimuat...');
+            });
+            
+            video.addEventListener('canplay', () => {
+                setTimeout(() => {
+                    videoStatus.style.display = 'none';
+                }, 1000);
+            });
+            
+            // Cek status setelah timeout
             setTimeout(() => {
-                if (video.readyState === 0 || video.networkState === 3) {
-                    videoError.style.display = 'block';
+                if (video.readyState < 2) {
+                    showVideoStatus('error', 'Video terlalu lama dimuat. Coba muat ulang.');
                 }
-            }, 3000);
+            }, 10000);
+        }
+        
+        // Tampilkan status video
+        function showVideoStatus(type, message, autoHide = null) {
+            statusTitle.className = type === 'success' ? 'status-success' : 'status-error';
+            statusTitle.textContent = type === 'success' ? 'Berhasil!' : 'Perhatian!';
+            statusMessage.textContent = message;
+            videoStatus.style.display = 'block';
+            
+            if (autoHide) {
+                setTimeout(() => {
+                    videoStatus.style.display = 'none';
+                }, autoHide);
+            }
         }
         
         // Retry button
         retryBtn.addEventListener('click', () => {
-            videoError.style.display = 'none';
+            videoStatus.style.display = 'none';
             const video = document.querySelector('#sidoarjo-video');
             video.load();
+            video.play().catch(e => {
+                console.log('Video play failed:', e);
+            });
         });
         
         // Toggle info panel
@@ -416,25 +533,45 @@
             infoPanel.classList.toggle('active');
         });
         
-        // Navigation buttons
-        const playBtn = document.getElementById('play-btn');
-        const vrBtn = document.getElementById('vr-btn');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        // Video control buttons
+        const playToggle = document.getElementById('play-toggle');
+        const muteToggle = document.getElementById('mute-toggle');
+        const reloadVideo = document.getElementById('reload-video');
         
-        playBtn.addEventListener('click', () => {
+        playToggle.addEventListener('click', () => {
             const video = document.querySelector('#sidoarjo-video');
             if (video.paused) {
                 video.play().catch(e => {
                     console.log('Video play failed:', e);
-                    video.muted = true;
-                    video.play();
                 });
-                playBtn.textContent = '⏸';
+                playToggle.textContent = '⏸️ Jeda';
+                isPlaying = true;
             } else {
                 video.pause();
-                playBtn.textContent = '▶';
+                playToggle.textContent = '▶️ Putar';
+                isPlaying = false;
             }
         });
+        
+        muteToggle.addEventListener('click', () => {
+            const video = document.querySelector('#sidoarjo-video');
+            video.muted = !video.muted;
+            muteToggle.textContent = video.muted ? '🔇 Bisu' : '🔊 Suara';
+            isMuted = video.muted;
+        });
+        
+        reloadVideo.addEventListener('click', () => {
+            const video = document.querySelector('#sidoarjo-video');
+            video.load();
+            video.play().catch(e => {
+                console.log('Video play failed:', e);
+            });
+            showVideoStatus('loading', 'Memuat ulang video...', 2000);
+        });
+        
+        // Navigation buttons
+        const vrBtn = document.getElementById('vr-btn');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
         
         vrBtn.addEventListener('click', () => {
             const scene = document.querySelector('a-scene');
@@ -467,10 +604,18 @@
         // Auto-play video dengan mute (kebijakan browser)
         document.addEventListener('DOMContentLoaded', () => {
             const video = document.querySelector('#sidoarjo-video');
-            video.muted = true;
+            // Video sudah dimulai dengan muted attribute
             video.play().catch(e => {
-                console.log('Autoplay dengan mute gagal:', e);
+                console.log('Autoplay failed:', e);
+                showVideoStatus('error', 'Klik tombol putar untuk memulai video.');
             });
+        });
+        
+        // Handle video errors
+        window.addEventListener('error', (e) => {
+            if (e.target.tagName.toLowerCase() === 'video') {
+                showVideoStatus('error', 'Terjadi kesalahan saat memuat video.');
+            }
         });
     </script>
 </body>
