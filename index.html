@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -273,6 +273,18 @@
         .status-error {
             color: #f44336;
         }
+
+        #format-info {
+            position: absolute;
+            bottom: 50px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fdbb2d;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            pointer-events: auto;
+        }
         
         @media (max-width: 768px) {
             #header h1 {
@@ -296,6 +308,12 @@
                 height: 50px;
                 font-size: 1.2rem;
             }
+
+            #format-info {
+                bottom: 80px;
+                left: 10px;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
@@ -307,14 +325,14 @@
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar"></div>
         </div>
-        <div class="loading-text" id="loading-text">Memuat pengalaman VR...</div>
+        <div class="loading-text" id="loading-text">Loading VR Experience...</div>
     </div>
 
     <!-- Video Status Message -->
     <div id="video-status">
-        <h3 id="status-title">Status Video</h3>
+        <h3 id="status-title">Video Status</h3>
         <p id="status-message"></p>
-        <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer;">Coba Lagi</button>
+        <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer;">Try Again</button>
     </div>
 
     <!-- UI Container -->
@@ -327,22 +345,22 @@
         <button id="info-toggle">ℹ️</button>
         
         <div id="info-panel">
-            <h2>Legenda Sidoarjo</h2>
-            <p>Jelajahi sejarah dan mitos asal-usul Kabupaten Sidoarjo melalui teknologi Virtual Reality.</p>
+            <h2>Sidoarjo Legends</h2>
+            <p>Explore the history and myths of Sidoarjo Regency's origins through Virtual Reality technology.</p>
             
             <div class="legend-item">
-                <h3>Asal Nama Sidoarjo</h3>
-                <p>Nama Sidoarjo berasal dari kata "Sido" yang berarti "menjadi" dan "Arjo" yang berarti "berharga". Konon nama ini diberikan oleh seorang bupati yang berharap wilayah ini menjadi daerah yang makmur dan berharga.</p>
+                <h3>Origin of Sidoarjo Name</h3>
+                <p>The name Sidoarjo comes from the words "Sido" meaning "to become" and "Arjo" meaning "valuable". This name was reportedly given by a regent who hoped this area would become a prosperous and valuable region.</p>
             </div>
             
             <div class="legend-item">
-                <h3>Legenda Joko Bayu</h3>
-                <p>Kisah Joko Bayu dan perjuangannya melawan penjajah Belanda di wilayah Sidoarjo. Joko Bayu dikenal sebagai pahlawan lokal yang gigih mempertahankan tanah kelahirannya.</p>
+                <h3>Legend of Joko Bayu</h3>
+                <p>The story of Joko Bayu and his struggle against Dutch colonists in the Sidoarjo region. Joko Bayu is known as a local hero who persistently defended his homeland.</p>
             </div>
             
             <div class="legend-item">
-                <h3>Mitos Sumber Air</h3>
-                <p>Legenda tentang sumber air ajaib yang memberikan kesuburan pada tanah Sidoarjo. Konon sumber air ini ditemukan oleh seorang pertapa yang sedang bertapa di wilayah ini.</p>
+                <h3>Water Source Myth</h3>
+                <p>Legend of a magical water source that gives fertility to the land of Sidoarjo. This water source was reportedly discovered by a hermit who was meditating in this area.</p>
             </div>
             
             <div class="vr-badge">VR Technology Experience</div>
@@ -350,10 +368,15 @@
         
         <!-- Video Controls -->
         <div id="video-controls">
-            <h3>Kontrol Video</h3>
-            <button class="control-btn" id="play-toggle">⏸️ Jeda</button>
-            <button class="control-btn" id="mute-toggle">🔊 Suara</button>
-            <button class="control-btn" id="reload-video">🔄 Muat Ulang</button>
+            <h3>Video Controls</h3>
+            <button class="control-btn" id="play-toggle">⏸️ Pause</button>
+            <button class="control-btn" id="mute-toggle">🔊 Sound</button>
+            <button class="control-btn" id="reload-video">🔄 Reload</button>
+        </div>
+
+        <!-- Format Info -->
+        <div id="format-info">
+            Video Format: MOV 360° • Quality: HD
         </div>
         
         <div id="navigation">
@@ -363,7 +386,7 @@
         
         <div id="credits">
             Pelangi VR Experience<br>
-            © 2023 Sidoarjo Heritage
+            © 2025 Sidoarjo Heritage
         </div>
     </div>
 
@@ -371,7 +394,7 @@
     <a-scene>
         <!-- Assets -->
         <a-assets>
-            <!-- Video dari Google Drive Anda -->
+            <!-- Video from Your Google Drive - MOV format -->
             <video id="sidoarjo-video" 
                     autoplay 
                     loop 
@@ -379,37 +402,53 @@
                     playsinline 
                     webkit-playsinline
                     muted>
-                <source src="https://drive.google.com/drive/u/3/folders/1aKP6xMSyU5fC1gyIcOamttnR_3grFx2f>
+                <!-- MOV format with multiple source options for compatibility -->
+                <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/quicktime">
+                <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/mp4">
             </video>
         </a-assets>
 
-        <!-- Sky dengan video 360 -->
+        <!-- Sky with 360 video -->
         <a-videosphere 
             src="#sidoarjo-video"
             rotation="0 -90 0"
             id="video-sphere">
         </a-videosphere>
 
-        <!-- Kamera dengan kontrol VR -->
+        <!-- Camera with VR controls -->
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
 
-        <!-- Obyek 3D interaktif -->
+        <!-- Interactive 3D objects -->
         <a-entity id="legend-marker" 
                   geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5" 
                   material="color: #fdbb2d; shader: flat" 
                   position="3 1.5 -5" 
                   animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
-            <a-text value="Legenda Sidoarjo" align="center" position="0 0.8 0" color="#1a2a6c" scale="2 2 2"></a-text>
+            <a-text value="Sidoarjo Legends" align="center" position="0 0.8 0" color="#1a2a6c" scale="2 2 2"></a-text>
         </a-entity>
 
-        <!-- Informasi tambahan -->
+        <!-- Additional information points -->
         <a-entity id="info-point-1" geometry="primitive: sphere; radius: 0.3" 
                   material="color: #1a2a6c" 
                   position="-2 1.8 -3"
                   animation="property: position; to: -2 2.2 -3; dir: alternate; loop: true; dur: 2000">
-            <a-text value="Sejarah" align="center" position="0 0.5 0" color="#ffffff" scale="1.5 1.5 1.5"></a-text>
+            <a-text value="History" align="center" position="0 0.5 0" color="#ffffff" scale="1.5 1.5 1.5"></a-text>
+        </a-entity>
+
+        <a-entity id="info-point-2" geometry="primitive: sphere; radius: 0.3" 
+                  material="color: #b21f1f" 
+                  position="0 1.8 -4"
+                  animation="property: position; to: 0 2.2 -4; dir: alternate; loop: true; dur: 2000; delay: 1000">
+            <a-text value="Culture" align="center" position="0 0.5 0" color="#ffffff" scale="1.5 1.5 1.5"></a-text>
+        </a-entity>
+
+        <a-entity id="info-point-3" geometry="primitive: sphere; radius: 0.3" 
+                  material="color: #fdbb2d" 
+                  position="2 1.8 -3"
+                  animation="property: position; to: 2 2.2 -3; dir: alternate; loop: true; dur: 2000; delay: 500">
+            <a-text value="Heritage" align="center" position="0 0.5 0" color="#1a2a6c" scale="1.5 1.5 1.5"></a-text>
         </a-entity>
 
         <!-- Lighting -->
@@ -428,7 +467,7 @@
     </a-scene>
 
     <script>
-        // Simulasi loading progress
+        // Loading progress simulation
         let progress = 0;
         const loadingBar = document.getElementById('loading-bar');
         const loadingText = document.getElementById('loading-text');
@@ -449,13 +488,13 @@
             loadingBar.style.width = `${progress}%`;
             
             if (progress < 30) {
-                loadingText.textContent = "Memuat aset 3D...";
+                loadingText.textContent = "Loading 3D assets...";
             } else if (progress < 60) {
-                loadingText.textContent = "Menyiapkan lingkungan VR...";
+                loadingText.textContent = "Preparing VR environment...";
             } else if (progress < 90) {
-                loadingText.textContent = "Memuat video 360...";
+                loadingText.textContent = "Loading MOV 360° video...";
             } else {
-                loadingText.textContent = "Hampir selesai...";
+                loadingText.textContent = "Almost ready...";
             }
             
             if (progress === 100) {
@@ -470,21 +509,22 @@
             }
         }, 200);
         
-        // Cek status video
+        // Check video status
         function checkVideoStatus() {
             const video = document.querySelector('#sidoarjo-video');
             
-            // Event listeners untuk video
+            // Event listeners for video
             video.addEventListener('loadeddata', () => {
-                showVideoStatus('success', 'Video berhasil dimuat!', 2000);
+                showVideoStatus('success', 'MOV 360° video loaded successfully!', 2000);
             });
             
-            video.addEventListener('error', () => {
-                showVideoStatus('error', 'Gagal memuat video. Pastikan koneksi internet stabil.');
+            video.addEventListener('error', (e) => {
+                console.error('Video error:', e);
+                showVideoStatus('error', 'Failed to load MOV video. Please check format compatibility.');
             });
             
             video.addEventListener('waiting', () => {
-                showVideoStatus('loading', 'Video sedang dimuat...');
+                showVideoStatus('loading', 'MOV video is loading...');
             });
             
             video.addEventListener('canplay', () => {
@@ -493,18 +533,18 @@
                 }, 1000);
             });
             
-            // Cek status setelah timeout
+            // Check status after timeout
             setTimeout(() => {
                 if (video.readyState < 2) {
-                    showVideoStatus('error', 'Video terlalu lama dimuat. Coba muat ulang.');
+                    showVideoStatus('error', 'MOV video is taking too long to load. Please try reloading.');
                 }
-            }, 10000);
+            }, 15000);
         }
         
-        // Tampilkan status video
+        // Show video status
         function showVideoStatus(type, message, autoHide = null) {
             statusTitle.className = type === 'success' ? 'status-success' : 'status-error';
-            statusTitle.textContent = type === 'success' ? 'Berhasil!' : 'Perhatian!';
+            statusTitle.textContent = type === 'success' ? 'Success!' : 'Attention!';
             statusMessage.textContent = message;
             videoStatus.style.display = 'block';
             
@@ -520,9 +560,12 @@
             videoStatus.style.display = 'none';
             const video = document.querySelector('#sidoarjo-video');
             video.load();
-            video.play().catch(e => {
-                console.log('Video play failed:', e);
-            });
+            setTimeout(() => {
+                video.play().catch(e => {
+                    console.log('Video play failed:', e);
+                    showVideoStatus('error', 'Please click play button to start video.');
+                });
+            }, 500);
         });
         
         // Toggle info panel
@@ -543,12 +586,13 @@
             if (video.paused) {
                 video.play().catch(e => {
                     console.log('Video play failed:', e);
+                    showVideoStatus('error', 'Please enable autoplay in browser settings.');
                 });
-                playToggle.textContent = '⏸️ Jeda';
+                playToggle.textContent = '⏸️ Pause';
                 isPlaying = true;
             } else {
                 video.pause();
-                playToggle.textContent = '▶️ Putar';
+                playToggle.textContent = '▶️ Play';
                 isPlaying = false;
             }
         });
@@ -556,17 +600,19 @@
         muteToggle.addEventListener('click', () => {
             const video = document.querySelector('#sidoarjo-video');
             video.muted = !video.muted;
-            muteToggle.textContent = video.muted ? '🔇 Bisu' : '🔊 Suara';
+            muteToggle.textContent = video.muted ? '🔇 Muted' : '🔊 Sound';
             isMuted = video.muted;
         });
         
         reloadVideo.addEventListener('click', () => {
             const video = document.querySelector('#sidoarjo-video');
             video.load();
-            video.play().catch(e => {
-                console.log('Video play failed:', e);
-            });
-            showVideoStatus('loading', 'Memuat ulang video...', 2000);
+            setTimeout(() => {
+                video.play().catch(e => {
+                    console.log('Video play failed:', e);
+                });
+            }, 500);
+            showVideoStatus('loading', 'Reloading MOV video...', 2000);
         });
         
         // Navigation buttons
@@ -601,22 +647,48 @@
             document.getElementById('ui-container').style.display = 'block';
         });
         
-        // Auto-play video dengan mute (kebijakan browser)
+        // Auto-play video with mute (browser policy)
         document.addEventListener('DOMContentLoaded', () => {
             const video = document.querySelector('#sidoarjo-video');
-            // Video sudah dimulai dengan muted attribute
-            video.play().catch(e => {
-                console.log('Autoplay failed:', e);
-                showVideoStatus('error', 'Klik tombol putar untuk memulai video.');
-            });
+            // Video already starts with muted attribute
+            setTimeout(() => {
+                video.play().catch(e => {
+                    console.log('Autoplay failed:', e);
+                    showVideoStatus('error', 'Click the play button to start the MOV video.');
+                });
+            }, 1000);
         });
         
         // Handle video errors
         window.addEventListener('error', (e) => {
             if (e.target.tagName.toLowerCase() === 'video') {
-                showVideoStatus('error', 'Terjadi kesalahan saat memuat video.');
+                showVideoStatus('error', 'MOV format may not be supported. Trying alternative formats...');
             }
         });
+
+        // Add click events to info points
+        document.addEventListener('DOMContentLoaded', () => {
+            const infoPoints = document.querySelectorAll('[id^="info-point"]');
+            infoPoints.forEach(point => {
+                point.addEventListener('click', () => {
+                    const textElement = point.querySelector('a-text');
+                    const infoType = textElement.getAttribute('value');
+                    showVideoStatus('success', `Showing information about: ${infoType}`, 2000);
+                });
+            });
+        });
+
+        // MOV format compatibility check
+        function checkMOVSupport() {
+            const video = document.createElement('video');
+            const canPlayMOV = video.canPlayType('video/quicktime');
+            if (canPlayMOV === '') {
+                console.log('MOV format may not be fully supported in this browser');
+            }
+        }
+        
+        // Run compatibility check
+        checkMOVSupport();
     </script>
 </body>
 </html>
