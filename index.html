@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pelangi VR : Introducing Legends and Origins of Sidoarjo Through VR Technology</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-youtube-component@1.0.1/dist/aframe-youtube-component.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -214,6 +213,20 @@
             text-align: right;
         }
         
+        #video-error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 999;
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             #header h1 {
                 font-size: 1.4rem;
@@ -244,6 +257,13 @@
             <div class="loading-bar" id="loading-bar"></div>
         </div>
         <div class="loading-text" id="loading-text">Memuat pengalaman VR...</div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="video-error">
+        <h3>Video Tidak Dapat Dimuat</h3>
+        <p>Pastikan koneksi internet stabil dan video tersedia.</p>
+        <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer;">Coba Lagi</button>
     </div>
 
     <!-- UI Container -->
@@ -291,12 +311,20 @@
 
     <!-- A-Frame Scene -->
     <a-scene>
-        <!-- YouTube 360 Video -->
-        <a-youtube
-            videoid="5Jyx7XXESI4"
-            width="1920"
-            height="1080">
-        </a-youtube>
+        <!-- Assets dengan video langsung -->
+        <a-assets>
+            <!-- Video 360 dari YouTube menggunakan iframe -->
+            <video id="sidoarjo-video" autoplay loop crossorigin="anonymous" playsinline webkit-playsinline>
+                <!-- Fallback video source -->
+                <source src="https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0" type="video/mp4">
+            </video>
+        </a-assets>
+
+        <!-- Sky dengan video 360 -->
+        <a-videosphere 
+            src="#sidoarjo-video"
+            rotation="0 -90 0">
+        </a-videosphere>
 
         <!-- Kamera dengan kontrol VR -->
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
@@ -314,6 +342,16 @@
         <!-- Lighting -->
         <a-light type="ambient" color="#4455aa"></a-light>
         <a-light type="directional" color="#ffffff" intensity="0.8" position="-0.5 1 1"></a-light>
+        
+        <!-- Ground plane -->
+        <a-plane 
+            position="0 0 -4" 
+            rotation="-90 0 0" 
+            width="100" 
+            height="100" 
+            color="#2d5b2d"
+            shadow="receive: true">
+        </a-plane>
     </a-scene>
 
     <script>
@@ -322,6 +360,8 @@
         const loadingBar = document.getElementById('loading-bar');
         const loadingText = document.getElementById('loading-text');
         const loadingScreen = document.getElementById('loading-screen');
+        const videoError = document.getElementById('video-error');
+        const retryBtn = document.getElementById('retry-btn');
         
         const loadingInterval = setInterval(() => {
             progress += Math.random() * 10;
@@ -345,10 +385,28 @@
                     loadingScreen.style.opacity = "0";
                     setTimeout(() => {
                         loadingScreen.style.display = "none";
+                        checkVideoStatus();
                     }, 1000);
                 }, 500);
             }
         }, 200);
+        
+        // Cek status video
+        function checkVideoStatus() {
+            const video = document.querySelector('#sidoarjo-video');
+            setTimeout(() => {
+                if (video.readyState === 0 || video.networkState === 3) {
+                    videoError.style.display = 'block';
+                }
+            }, 3000);
+        }
+        
+        // Retry button
+        retryBtn.addEventListener('click', () => {
+            videoError.style.display = 'none';
+            const video = document.querySelector('#sidoarjo-video');
+            video.load();
+        });
         
         // Toggle info panel
         const infoToggle = document.getElementById('info-toggle');
@@ -364,8 +422,18 @@
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         
         playBtn.addEventListener('click', () => {
-            // YouTube player control akan diimplementasikan jika menggunakan iframe API
-            alert('Kontrol video akan aktif saat menggunakan YouTube Iframe API');
+            const video = document.querySelector('#sidoarjo-video');
+            if (video.paused) {
+                video.play().catch(e => {
+                    console.log('Video play failed:', e);
+                    video.muted = true;
+                    video.play();
+                });
+                playBtn.textContent = '⏸';
+            } else {
+                video.pause();
+                playBtn.textContent = '▶';
+            }
         });
         
         vrBtn.addEventListener('click', () => {
@@ -396,10 +464,14 @@
             document.getElementById('ui-container').style.display = 'block';
         });
         
-        // Handle YouTube API (jika diperlukan kontrol lebih lanjut)
-        window.onYouTubeIframeAPIReady = function() {
-            console.log('YouTube API Ready');
-        };
+        // Auto-play video dengan mute (kebijakan browser)
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.querySelector('#sidoarjo-video');
+            video.muted = true;
+            video.play().catch(e => {
+                console.log('Autoplay dengan mute gagal:', e);
+            });
+        });
     </script>
 </body>
 </html>
