@@ -1,49 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Pelangi VR - 360° Experience</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pelangi VR - Sidoarjo 360° Experience</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            background: #000; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        #loading { 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            color: white; 
-            font-family: Arial; 
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
             text-align: center;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #fdbb2d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #debug {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
             z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div id="loading">Loading 360° VR...</div>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="logo">PELANGI VR</div>
+        <div id="status">Loading GitHub Pages VR Experience...</div>
+        <div class="spinner"></div>
+    </div>
 
-    <a-scene>
+    <!-- Debug Info -->
+    <div id="debug">
+        GitHub Pages Ready | A-Frame Loaded
+    </div>
+
+    <!-- A-Frame Scene -->
+    <a-scene vr-mode-ui="enabled: true">
         <a-assets>
-            <!-- VIDEO YANG 100% BEKERJA -->
-            <video id="video" autoplay loop muted playsinline>
+            <!-- Video yang dihosting eksternal (tidak ada CORS issues) -->
+            <video id="main-video" 
+                   autoplay
+                   loop
+                   muted
+                   playsinline
+                   webkit-playsinline>
                 <source src="https://cdn.aframe.io/360-video-boilerplate/video-360.mp4" type="video/mp4">
             </video>
         </a-assets>
-        
-        <a-videosphere src="#video" rotation="0 -90 0"></a-videosphere>
-        <a-entity camera look-controls position="0 1.6 0"></a-entity>
+
+        <a-videosphere src="#main-video" rotation="0 -90 0"></a-videosphere>
+
+        <a-entity camera look-controls wasd-controls position="0 1.6 0">
+            <a-cursor></a-cursor>
+        </a-entity>
+
+        <!-- Basic scene elements -->
+        <a-entity geometry="primitive: box" material="color: #fdbb2d" position="0 2 -4"
+                 animation="property: rotation; to: 360 360 0; loop: true; dur: 10000">
+            <a-text value="SIDOARJO VR" align="center" position="0 1.2 0" color="#1a2a6c" scale="2 2 2"></a-text>
+        </a-entity>
+
+        <a-light type="ambient" color="#444"></a-light>
+        <a-light type="directional" color="#fff" intensity="0.8" position="0 1 1"></a-light>
     </a-scene>
 
     <script>
-        // Sembunyikan loading setelah 2 detik
-        setTimeout(() => {
-            document.getElementById('loading').style.display = 'none';
-        }, 2000);
+        console.log('🚀 GitHub Pages VR Experience Starting...');
         
-        console.log('✅ Using guaranteed 360 video from A-Frame CDN');
+        // Test jika A-Frame loaded
+        if (typeof AFRAME !== 'undefined') {
+            console.log('✅ A-Frame successfully loaded');
+            document.getElementById('debug').innerHTML += ' | A-Frame: ✅';
+        } else {
+            console.error('❌ A-Frame not loaded');
+            document.getElementById('debug').innerHTML += ' | A-Frame: ❌';
+        }
+
+        const video = document.getElementById('main-video');
+        const status = document.getElementById('status');
+        const loading = document.getElementById('loading');
+
+        video.addEventListener('loadeddata', function() {
+            console.log('✅ Video loaded successfully');
+            status.textContent = 'Video loaded!';
+            document.getElementById('debug').innerHTML += ' | Video: ✅';
+        });
+
+        video.addEventListener('playing', function() {
+            console.log('▶️ Video started playing');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 1000);
+        });
+
+        video.addEventListener('error', function(e) {
+            console.error('❌ Video error:', e);
+            status.textContent = 'Video error - check console';
+            document.getElementById('debug').innerHTML += ' | Video: ❌';
+        });
+
+        // Fallback hide loading
+        setTimeout(() => {
+            if (loading.style.display !== 'none') {
+                loading.style.display = 'none';
+                console.log('⏰ Loading screen hidden by timeout');
+            }
+        }, 5000);
+
+        // Log untuk debugging
+        console.log('🔧 Debug Information:');
+        console.log('- GitHub Pages: Should work fine');
+        console.log('- A-Frame: External CDN');
+        console.log('- Video: External CDN (no CORS issues)');
+        console.log('- HTTPS: Required for VR features');
     </script>
 </body>
 </html>
