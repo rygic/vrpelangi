@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelangi VR - Sidoarjo Legends in 360°</title>
+    <title>Pelangi VR - Sidoarjo 360° Experience</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
         * {
@@ -18,13 +18,13 @@
             background: #000;
         }
         
-        #loading-screen {
+        #loading {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: #000;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -33,25 +33,10 @@
             color: white;
         }
         
-        .loading-logo {
-            font-size: 3.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
-        
-        .loading-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            text-align: center;
-            max-width: 80%;
-        }
-        
         .spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(253, 187, 45, 0.3);
             border-radius: 50%;
             border-top-color: #fdbb2d;
             animation: spin 1s ease-in-out infinite;
@@ -62,391 +47,103 @@
             to { transform: rotate(360deg); }
         }
         
-        #ui-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            pointer-events: none;
-        }
-        
-        #header {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid #fdbb2d;
-        }
-        
-        #header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-            color: #fdbb2d;
-        }
-        
-        #header p {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        #video-solution {
-            position: absolute;
+        #start-button {
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
-            color: white;
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            z-index: 1001;
-            border: 3px solid #fdbb2d;
-            max-width: 500px;
-        }
-        
-        .solution-btn {
             background: #fdbb2d;
             color: black;
             border: none;
-            padding: 15px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin: 10px;
-            transition: all 0.3s ease;
-            pointer-events: auto;
-        }
-        
-        .solution-btn:hover {
-            background: #ffcc44;
-            transform: scale(1.05);
-        }
-        
-        .solution-btn.secondary {
-            background: #1a2a6c;
-            color: white;
-        }
-        
-        #credits {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            color: white;
-            font-size: 0.8rem;
-            opacity: 0.7;
-            text-align: right;
-        }
-
-        #info-panel {
-            position: absolute;
-            top: 120px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
+            padding: 20px 40px;
             border-radius: 10px;
-            max-width: 300px;
-            backdrop-filter: blur(10px);
-            border-left: 4px solid #b21f1f;
-            pointer-events: auto;
-        }
-        
-        #info-panel h2 {
-            color: #fdbb2d;
-            margin-bottom: 15px;
             font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10001;
+            display: none;
         }
         
-        .legend-item {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .legend-item:last-child {
-            border-bottom: none;
-        }
-        
-        .legend-item h3 {
-            color: #1a2a6c;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+        #start-button:hover {
+            background: #ffcc44;
         }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loading-logo">PELANGI VR</div>
-        <div class="loading-subtitle">Introducing Legends and Origins of Sidoarjo Through VR Technology</div>
+    <div id="loading">
         <div class="spinner"></div>
-        <div class="loading-text">Preparing your VR experience...</div>
+        <div>Loading Pelangi VR Experience...</div>
     </div>
 
-    <!-- Video Solution Panel -->
-    <div id="video-solution">
-        <h2>🎬 Start VR Experience</h2>
-        <p style="margin: 20px 0; line-height: 1.6;">
-            Choose how you want to experience Sidoarjo's legends in 360° VR
-        </p>
-        
-        <button class="solution-btn" onclick="startVideoExperience('sample')">
-            🚀 Try Sample 360° Video
-        </button>
-        
-        <button class="solution-btn secondary" onclick="showUploadGuide()">
-            📁 Use Your Own Video
-        </button>
-        
-        <div style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-            <p style="font-size: 0.9rem; opacity: 0.8;">
-                💡 <strong>Tip:</strong> For best results, use MP4 format videos<br>
-                Chrome & Firefox work best for 360° VR
-            </p>
-        </div>
-    </div>
-
-    <!-- UI Container -->
-    <div id="ui-container" style="display: none;">
-        <div id="header">
-            <h1>Pelangi VR</h1>
-            <p>Introducing Legends and Origins of Sidoarjo Through VR Technology</p>
-        </div>
-        
-        <div id="info-panel">
-            <h2>Sidoarjo Legends</h2>
-            
-            <div class="legend-item">
-                <h3>Origin of Sidoarjo Name</h3>
-                <p>The name Sidoarjo comes from "Sido" (to become) and "Arjo" (valuable), reflecting hopes for prosperity.</p>
-            </div>
-            
-            <div class="legend-item">
-                <h3>Legend of Joko Bayu</h3>
-                <p>Story of local hero Joko Bayu's struggle against Dutch colonists in Sidoarjo region.</p>
-            </div>
-            
-            <div class="legend-item">
-                <h3>Water Source Myth</h3>
-                <p>Legend of magical water source bringing fertility to Sidoarjo lands.</p>
-            </div>
-        </div>
-        
-        <div id="credits">
-            Pelangi VR Experience<br>
-            © 2025 Sidoarjo Heritage
-        </div>
-    </div>
+    <!-- Start Button -->
+    <button id="start-button" onclick="startExperience()">▶ START VR EXPERIENCE</button>
 
     <!-- A-Frame Scene -->
-    <a-scene style="display: none;" id="vr-scene">
-        <!-- We'll dynamically add video sources -->
-        
-        <a-entity camera look-controls wasd-controls position="0 1.6 0">
+    <a-scene vr-mode-ui="enabled: true">
+        <a-assets>
+            <!-- Direct streaming from Google Drive -->
+            <video id="sidoarjo-video" 
+                   autoplay
+                   loop
+                   muted
+                   crossorigin="anonymous"
+                   playsinline>
+                <source src="https://drive.google.com/uc?export=download&id=1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a" type="video/mp4">
+            </video>
+        </a-assets>
+
+        <!-- 360 Video -->
+        <a-videosphere src="#sidoarjo-video" rotation="0 -90 0"></a-videosphere>
+
+        <!-- Camera -->
+        <a-entity camera look-controls position="0 1.6 0">
             <a-cursor></a-cursor>
-        </a-entity>
-
-        <!-- Interactive Elements -->
-        <a-entity id="legend-marker" 
-                  geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5" 
-                  material="color: #fdbb2d; shader: flat" 
-                  position="3 1.5 -5" 
-                  animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
-            <a-text value="Sidoarjo 360°" align="center" position="0 0.8 0" color="#1a2a6c" scale="2 2 2"></a-text>
-        </a-entity>
-
-        <a-light type="ambient" color="#4455aa"></a-light>
-        <a-light type="directional" color="#ffffff" intensity="0.8" position="-0.5 1 1"></a-light>
-
-        <!-- Information Points -->
-        <a-entity geometry="primitive: sphere; radius: 0.2" material="color: #1a2a6c" position="-2 2 -3"
-                 animation="property: rotation; to: 360 0 0; loop: true; dur: 8000">
-            <a-text value="History" align="center" position="0 0.4 0" color="#ffffff" scale="1.5 1.5 1.5"></a-text>
         </a-entity>
     </a-scene>
 
-    <!-- Upload Guide Modal -->
-    <div id="upload-guide" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px; border-radius: 15px; z-index: 1002; max-width: 600px; border: 3px solid #fdbb2d;">
-        <h3>📁 How to Use Your Own Video</h3>
-        <div style="text-align: left; margin: 20px 0; line-height: 1.6;">
-            <h4>Step 1: Prepare Your Video</h4>
-            <ul>
-                <li>Format: MP4 (recommended) or MOV</li>
-                <li>Type: 360° equirectangular video</li>
-                <li>Resolution: 4K (3840x1920) or higher</li>
-            </ul>
-            
-            <h4>Step 2: Upload to Cloud Storage</h4>
-            <p><strong>Recommended:</strong> YouTube (set as 360° video)</p>
-            <p><strong>Alternative:</strong> Google Drive, Dropbox, or Vimeo</p>
-            
-            <h4>Step 3: Get Shareable Link</h4>
-            <p>For Google Drive: Make sure sharing is set to "Anyone with the link"</p>
-            
-            <h4>Step 4: Enter Your Video URL</h4>
-            <input type="text" id="video-url" placeholder="https://your-video-link.com/video.mp4" 
-                   style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #fdbb2d; border-radius: 5px; background: rgba(255,255,255,0.1); color: white;">
-        </div>
-        <button class="solution-btn" onclick="useCustomVideo()">Use This Video</button>
-        <button class="solution-btn secondary" onclick="hideUploadGuide()">Back</button>
-    </div>
-
     <script>
-        // Sample 360° video URLs that should work
-        const sampleVideos = [
-            {
-                name: "Sample 360° Video 1",
-                url: "https://assets.codepen.io/1480814/360vid1.mp4",
-                type: "video/mp4"
-            },
-            {
-                name: "Sample 360° Video 2", 
-                url: "https://assets.codepen.io/1480814/360vid2.mp4",
-                type: "video/mp4"
-            }
-        ];
-
-        // Initialize
+        // Wait for A-Frame to load
         document.addEventListener('DOMContentLoaded', function() {
-            // Hide loading screen after a moment
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.display = 'none';
-            }, 2000);
+            const video = document.getElementById('sidoarjo-video');
+            const loading = document.getElementById('loading');
+            const startButton = document.getElementById('start-button');
+            
+            // Try to autoplay the video
+            video.play().then(() => {
+                // Autoplay successful - hide loading
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 1000);
+            }).catch((error) => {
+                // Autoplay blocked - show start button
+                console.log('Autoplay blocked, showing start button');
+                loading.style.display = 'none';
+                startButton.style.display = 'block';
+            });
+            
+            // Video event listeners
+            video.addEventListener('loadeddata', function() {
+                console.log('✅ Video loaded successfully');
+            });
+            
+            video.addEventListener('error', function(e) {
+                console.error('❌ Video error:', e);
+                loading.innerHTML = 'Error loading video. Please refresh the page.';
+            });
         });
 
-        function startVideoExperience(type) {
-            console.log('Starting video experience:', type);
+        function startExperience() {
+            const video = document.getElementById('sidoarjo-video');
+            const startButton = document.getElementById('start-button');
             
-            if (type === 'sample') {
-                // Use sample video
-                const sampleVideo = sampleVideos[0];
-                setupVideoScene(sampleVideo.url, sampleVideo.type);
-            }
+            video.play().then(() => {
+                startButton.style.display = 'none';
+            }).catch((error) => {
+                console.error('Play failed:', error);
+                startButton.textContent = '❌ Click to Try Again';
+            });
         }
-
-        function setupVideoScene(videoUrl, videoType) {
-            console.log('Setting up video scene with:', videoUrl);
-            
-            // Hide solution panel
-            document.getElementById('video-solution').style.display = 'none';
-            
-            // Show VR scene and UI
-            document.getElementById('vr-scene').style.display = 'block';
-            document.getElementById('ui-container').style.display = 'block';
-            
-            // Create video element dynamically
-            const video = document.createElement('video');
-            video.id = 'main-video';
-            video.src = videoUrl;
-            video.crossOrigin = 'anonymous';
-            video.playsInline = true;
-            video.muted = true; // Required for autoplay
-            video.loop = true;
-            video.preload = 'auto';
-            
-            // Add video to assets
-            const assets = document.querySelector('a-assets');
-            assets.appendChild(video);
-            
-            // Create videosphere
-            const videosphere = document.createElement('a-videosphere');
-            videosphere.setAttribute('src', '#' + video.id);
-            videosphere.setAttribute('rotation', '0 -90 0');
-            
-            const scene = document.querySelector('a-scene');
-            scene.appendChild(videosphere);
-            
-            // Try to play video
-            setTimeout(() => {
-                playVideoWithFallback(video);
-            }, 1000);
-        }
-
-        function playVideoWithFallback(video) {
-            console.log('Attempting to play video...');
-            
-            const playPromise = video.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log('✅ Video playback started successfully');
-                }).catch(error => {
-                    console.log('❌ Autoplay failed:', error);
-                    showPlayButton();
-                });
-            }
-        }
-
-        function showPlayButton() {
-            const playBtn = document.createElement('button');
-            playBtn.innerHTML = '▶️ Click to Play Video';
-            playBtn.className = 'solution-btn';
-            playBtn.style.position = 'absolute';
-            playBtn.style.top = '50%';
-            playBtn.style.left = '50%';
-            playBtn.style.transform = 'translate(-50%, -50%)';
-            playBtn.style.zIndex = '1001';
-            playBtn.onclick = function() {
-                const video = document.getElementById('main-video');
-                video.play();
-                playBtn.remove();
-            };
-            document.body.appendChild(playBtn);
-        }
-
-        function showUploadGuide() {
-            document.getElementById('upload-guide').style.display = 'block';
-        }
-
-        function hideUploadGuide() {
-            document.getElementById('upload-guide').style.display = 'none';
-        }
-
-        function useCustomVideo() {
-            const videoUrl = document.getElementById('video-url').value;
-            
-            if (videoUrl) {
-                // Determine video type from URL
-                let videoType = 'video/mp4';
-                if (videoUrl.includes('.mov')) {
-                    videoType = 'video/quicktime';
-                } else if (videoUrl.includes('.webm')) {
-                    videoType = 'video/webm';
-                }
-                
-                setupVideoScene(videoUrl, videoType);
-                hideUploadGuide();
-            } else {
-                alert('Please enter a valid video URL');
-            }
-        }
-
-        // Add click sound and interaction
-        document.addEventListener('click', function() {
-            // This helps with autoplay policies
-            const video = document.getElementById('main-video');
-            if (video && video.paused) {
-                video.play().catch(e => console.log('Play failed:', e));
-            }
-        });
-
-        // Handle Google Drive links specifically
-        function processGoogleDriveLink(url) {
-            // Convert Google Drive share link to direct download link
-            if (url.includes('drive.google.com')) {
-                const fileId = url.match(/[-\w]{25,}/);
-                if (fileId) {
-                    return `https://drive.google.com/uc?export=download&id=${fileId[0]}`;
-                }
-            }
-            return url;
-        }
-
-        console.log('🎯 VR Experience Ready');
-        console.log('Available sample videos:', sampleVideos);
     </script>
 </body>
 </html>
