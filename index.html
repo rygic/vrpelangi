@@ -107,7 +107,7 @@
             color: white;
             padding: 15px;
             border-radius: 10px;
-            max-width: 400px;
+            max-width: 350px;
             backdrop-filter: blur(10px);
             border-right: 4px solid #1a2a6c;
             pointer-events: auto;
@@ -128,8 +128,8 @@
         }
         
         .source-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 8px;
             margin: 10px 0;
         }
@@ -138,11 +138,12 @@
             background: #1a2a6c;
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
+            text-align: center;
         }
         
         .source-btn:hover {
@@ -280,10 +281,9 @@
         <h3 id="status-title">MOV Video Status</h3>
         <p id="status-message"></p>
         <div id="troubleshoot-section" style="margin-top: 20px; display: none;">
-            <h4 style="color: #ff9800; margin-bottom: 10px;">MOV Format Solutions:</h4>
-            <button class="troubleshoot-btn" onclick="switchSource('mov-direct')">MOV Direct</button>
+            <h4 style="color: #ff9800; margin-bottom: 10px;">Video Solutions:</h4>
             <button class="troubleshoot-btn" onclick="switchSource('mov-preview')">MOV Preview</button>
-            <button class="troubleshoot-btn" onclick="switchSource('mp4-converted')">MP4 Converted</button>
+            <button class="troubleshoot-btn" onclick="switchSource('mov-embedded')">MOV Embedded</button>
         </div>
         <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Retry Current Source</button>
     </div>
@@ -297,7 +297,7 @@
         
         <!-- Video Controls -->
         <div id="video-controls">
-            <h3>🎬 MOV Video Sources</h3>
+            <h3>🎬 Video Sources</h3>
             
             <div class="format-info">
                 <strong>Format: MOV (QuickTime)</strong><br>
@@ -312,9 +312,8 @@
             </div>
             
             <div class="source-buttons">
-                <button class="source-btn active" onclick="switchSource('mov-direct')">MOV Direct</button>
-                <button class="source-btn" onclick="switchSource('mov-preview')">MOV Preview</button>
-                <button class="source-btn" onclick="switchSource('mp4-converted')">MP4 Converted</button>
+                <button class="source-btn active" onclick="switchSource('mov-preview')">MOV Preview</button>
+                <button class="source-btn" onclick="switchSource('mov-embedded')">MOV Embedded</button>
             </div>
             
             <div style="margin-top: 15px;">
@@ -333,25 +332,18 @@
     <!-- A-Frame Scene -->
     <a-scene>
         <a-assets>
-            <!-- Source 1: Direct MOV from Google Drive -->
-            <video id="mov-direct-video" preload="none" crossorigin="anonymous" playsinline muted>
-                <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/quicktime">
-                <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/mp4">
-            </video>
-            
-            <!-- Source 2: MOV Preview Link -->
+            <!-- Source 1: MOV Preview Link -->
             <video id="mov-preview-video" preload="none" crossorigin="anonymous" playsinline muted>
                 <source src="https://drive.google.com/file/d/1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA/preview" type="video/quicktime">
             </video>
             
-            <!-- Source 3: Converted MP4 (Fallback) -->
-            <video id="mp4-converted-video" preload="none" crossorigin="anonymous" playsinline muted>
-                <!-- This would be your converted MP4 file -->
-                <source src="https://drive.google.com/uc?export=download&id=YOUR_CONVERTED_MP4_ID" type="video/mp4">
+            <!-- Source 2: MOV Embedded View -->
+            <video id="mov-embedded-video" preload="none" crossorigin="anonymous" playsinline muted>
+                <source src="https://drive.google.com/uc?export=view&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/quicktime">
             </video>
         </a-assets>
 
-        <a-videosphere src="#mov-direct-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
+        <a-videosphere src="#mov-preview-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
 
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
             <a-cursor></a-cursor>
@@ -371,29 +363,23 @@
     </a-scene>
 
     <script>
-        // Video sources configuration for MOV format
+        // Video sources configuration for MOV format (without direct download)
         const videoSources = {
-            'mov-direct': {
-                id: 'mov-direct-video',
-                name: 'MOV Direct Download',
-                type: 'video/quicktime',
-                description: 'Direct MOV file from Google Drive'
-            },
             'mov-preview': {
                 id: 'mov-preview-video', 
                 name: 'MOV Preview Link',
                 type: 'video/quicktime',
                 description: 'Google Drive preview link'
             },
-            'mp4-converted': {
-                id: 'mp4-converted-video',
-                name: 'MP4 Converted',
-                type: 'video/mp4', 
-                description: 'Converted MP4 version (better compatibility)'
+            'mov-embedded': {
+                id: 'mov-embedded-video',
+                name: 'MOV Embedded View',
+                type: 'video/quicktime',
+                description: 'MOV with embedded viewer'
             }
         };
 
-        let currentSource = 'mov-direct';
+        let currentSource = 'mov-preview';
         let currentVideo = null;
         let isFirstPlay = true;
 
@@ -416,7 +402,7 @@
                 
                 loadingBar.style.width = `${progress}%`;
                 
-                if (progress < 30) loadingText.textContent = "Initializing MOV video support...";
+                if (progress < 30) loadingText.textContent = "Initializing video support...";
                 else if (progress < 60) loadingText.textContent = "Checking format compatibility...";
                 else if (progress < 80) loadingText.textContent = "Loading 360° environment...";
                 else loadingText.textContent = "Finalizing VR experience...";
@@ -506,7 +492,7 @@
                 
                 // Set video to play
                 video.loop = true;
-                video.muted = true; // Muted videos can usually autoplay
+                video.muted = true; // Required for autoplay
                 
                 const playPromise = video.play();
                 
@@ -693,13 +679,6 @@
                 });
             }, 1000);
         });
-
-        // Browser compatibility info
-        console.log('🎯 Autoplay Strategy:');
-        console.log('- Preload: none (save bandwidth)');
-        console.log- Muted: true (required for autoplay)');
-        console.log('- Loop: true (for continuous playback)');
-        console.log('- User interaction required for sound');
     </script>
 </body>
 </html>
