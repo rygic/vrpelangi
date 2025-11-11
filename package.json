@@ -1,0 +1,12 @@
+{
+  "name": "vr-website-360",
+  "version": "1.0.0",
+  "description": "VR 360 Video Website",
+  "scripts": {
+    "dev": "python -m http.server 3000",
+    "build": "echo 'No build process needed'"
+  },
+  "keywords": ["vr", "360", "video", "aframe"],
+  "author": "Your Name",
+  "license": "MIT"
+}
