@@ -31,55 +31,55 @@
             align-items: center;
             z-index: 10000;
             color: white;
-            transition: opacity 1s;
         }
         
         .logo {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 10px;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid #fdbb2d;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px 0;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        #error-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
             text-align: center;
+        }
+        
+        .progress-container {
+            width: 300px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #fdbb2d;
+            transition: width 0.3s;
+        }
+        
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
             z-index: 10001;
             display: none;
-            border: 2px solid #fdbb2d;
-            max-width: 400px;
         }
         
-        #retry-btn {
-            background: #fdbb2d;
-            color: black;
+        .control-btn {
+            background: #1a2a6c;
+            color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 15px;
+        }
+        
+        .control-btn:hover {
+            background: #2a3a9c;
         }
     </style>
 </head>
@@ -87,185 +87,286 @@
     <!-- Loading Screen -->
     <div id="loading">
         <div class="logo">PELANGI VR</div>
-        <div>Loading Sidoarjo 360° Experience</div>
-        <div class="spinner"></div>
-        <div id="status">Initializing...</div>
+        <div id="status">Preparing your VR experience...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div id="progress-text">0%</div>
     </div>
 
-    <!-- Error Message -->
-    <div id="error-message">
-        <h3>Video Loading Issue</h3>
-        <p id="error-text">There was a problem loading the 360° video.</p>
-        <button id="retry-btn" onclick="retryVideo()">Retry</button>
+    <!-- Controls -->
+    <div id="controls">
+        <button class="control-btn" onclick="switchToDirectLink()">Use Direct Link</button>
+        <button class="control-btn" onclick="switchToEmbedded()">Use Embedded Link</button>
+        <button class="control-btn" onclick="useSampleVideo()">Use Sample Video</button>
     </div>
 
     <!-- A-Frame Scene -->
     <a-scene vr-mode-ui="enabled: true">
         <a-assets>
-            <!-- Multiple video source attempts -->
-            <video id="main-video" 
-                   autoplay
-                   loop
-                   muted
+            <!-- Option 1: Direct Download Link -->
+            <video id="direct-video" 
+                   preload="auto"
                    crossorigin="anonymous"
                    playsinline
-                   webkit-playsinline>
-                <!-- Try different Google Drive URL formats -->
+                   webkit-playsinline
+                   muted>
                 <source src="https://drive.google.com/uc?export=download&id=1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a" type="video/mp4">
-                <source src="https://www.googleapis.com/drive/v3/files/1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a?alt=media" type="video/mp4">
             </video>
-            
-            <!-- Fallback video -->
-            <video id="fallback-video" 
+
+            <!-- Option 2: Embedded/Preview Link -->
+            <video id="embedded-video" 
+                   preload="auto"
                    crossorigin="anonymous"
                    playsinline
-                   muted
-                   style="display: none;">
+                   webkit-playsinline
+                   muted>
+                <source src="https://drive.google.com/file/d/1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a/preview" type="video/mp4">
+            </video>
+
+            <!-- Option 3: Sample 360 Video -->
+            <video id="sample-video" 
+                   preload="auto"
+                   crossorigin="anonymous"
+                   playsinline
+                   webkit-playsinline
+                   muted>
                 <source src="https://assets.codepen.io/1480814/360vid1.mp4" type="video/mp4">
             </video>
         </a-assets>
 
-        <!-- 360 Video Sphere -->
-        <a-videosphere src="#main-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
+        <!-- Video Sphere -->
+        <a-videosphere src="#direct-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
 
         <!-- Camera -->
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
 
-        <!-- Basic lighting to ensure scene isn't dark -->
-        <a-light type="ambient" color="#444444" intensity="0.8"></a-light>
-        <a-light type="directional" color="#ffffff" intensity="0.5" position="0 1 1"></a-light>
+        <!-- Lighting -->
+        <a-light type="ambient" color="#444444" intensity="0.6"></a-light>
+        <a-light type="directional" color="#ffffff" intensity="0.4" position="0 1 1"></a-light>
     </a-scene>
 
     <script>
         let currentVideo = null;
-        let retryCount = 0;
-        const maxRetries = 3;
+        let currentSource = 'direct';
+        let progressInterval;
+        let loadStartTime;
+
+        // Video sources configuration
+        const videoSources = {
+            'direct': {
+                id: 'direct-video',
+                name: 'Direct Download',
+                url: 'https://drive.google.com/uc?export=download&id=1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a'
+            },
+            'embedded': {
+                id: 'embedded-video', 
+                name: 'Embedded Preview',
+                url: 'https://drive.google.com/file/d/1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a/preview'
+            },
+            'sample': {
+                id: 'sample-video',
+                name: 'Sample 360° Video',
+                url: 'https://assets.codepen.io/1480814/360vid1.mp4'
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Starting Pelangi VR Experience');
-            currentVideo = document.getElementById('main-video');
-            setupVideoMonitoring();
-            startVideoPlayback();
+            console.log('🚀 Initializing VR Experience');
+            initializeVideo();
         });
 
-        function setupVideoMonitoring() {
+        function initializeVideo() {
+            currentVideo = document.getElementById(videoSources.direct.id);
+            loadStartTime = Date.now();
+            
+            setupVideoListeners();
+            startProgressSimulation();
+            attemptPlayback();
+        }
+
+        function setupVideoListeners() {
             if (!currentVideo) return;
 
-            // Update loading status
             const statusEl = document.getElementById('status');
-            
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
             currentVideo.addEventListener('loadstart', function() {
-                console.log('📥 Video load started');
-                statusEl.textContent = 'Connecting to video...';
+                console.log('📥 Starting video load');
+                statusEl.textContent = 'Connecting to video source...';
             });
-            
-            currentVideo.addEventListener('loadeddata', function() {
-                console.log('✅ Video data loaded');
-                statusEl.textContent = 'Video loaded!';
-                hideLoading();
+
+            currentVideo.addEventListener('progress', function() {
+                if (currentVideo.buffered.length > 0) {
+                    const bufferedEnd = currentVideo.buffered.end(0);
+                    const duration = currentVideo.duration;
+                    if (duration > 0) {
+                        const percent = (bufferedEnd / duration) * 100;
+                        progressBar.style.width = percent + '%';
+                        progressText.textContent = Math.round(percent) + '%';
+                    }
+                }
             });
-            
+
             currentVideo.addEventListener('canplay', function() {
                 console.log('🎯 Video can play');
-                statusEl.textContent = 'Ready to play';
+                statusEl.textContent = 'Video ready - starting playback...';
             });
-            
+
+            currentVideo.addEventListener('canplaythrough', function() {
+                console.log('🚀 Video can play through');
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
+                statusEl.textContent = 'Starting VR experience...';
+            });
+
             currentVideo.addEventListener('playing', function() {
                 console.log('▶️ Video started playing');
                 hideLoading();
             });
-            
-            currentVideo.addEventListener('error', function(e) {
-                console.error('❌ Video error:', e);
-                console.error('Error details:', currentVideo.error);
-                
-                if (retryCount < maxRetries) {
-                    retryCount++;
-                    statusEl.textContent = `Retrying... (${retryCount}/${maxRetries})`;
-                    setTimeout(retryVideo, 2000);
-                } else {
-                    showError('Failed to load video after multiple attempts. Trying fallback...');
-                    setTimeout(useFallbackVideo, 1000);
-                }
-            });
-            
+
             currentVideo.addEventListener('waiting', function() {
+                console.log('⏳ Video buffering...');
                 statusEl.textContent = 'Buffering video...';
             });
-            
-            // Check if video is actually playing after a timeout
-            setTimeout(checkVideoPlayback, 5000);
+
+            currentVideo.addEventListener('stalled', function() {
+                console.log('🔄 Video stalled');
+                statusEl.textContent = 'Network issue - reconnecting...';
+            });
+
+            currentVideo.addEventListener('error', function(e) {
+                console.error('❌ Video error:', e);
+                clearInterval(progressInterval);
+                
+                const loadTime = Date.now() - loadStartTime;
+                if (loadTime > 10000) { // 10 seconds timeout
+                    statusEl.textContent = 'Video loading timeout. Trying alternative...';
+                    setTimeout(() => switchToEmbedded(), 1000);
+                }
+            });
+
+            // Timeout check
+            setTimeout(checkVideoStatus, 8000);
         }
 
-        function startVideoPlayback() {
-            console.log('🎬 Starting video playback');
-            
+        function startProgressSimulation() {
+            let progress = 0;
+            progressInterval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 90) progress = 90; // Cap at 90% for simulation
+                
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 300);
+        }
+
+        function attemptPlayback() {
             if (!currentVideo) return;
+
+            console.log('🎬 Attempting video playback');
             
-            // Ensure video is properly configured
             currentVideo.muted = true;
             currentVideo.loop = true;
-            currentVideo.playsInline = true;
-            currentVideo.crossOrigin = "anonymous";
-            
+            currentVideo.preload = 'auto';
+
             const playPromise = currentVideo.play();
             
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log('✅ Autoplay successful');
+                    console.log('✅ Playback started successfully');
                 }).catch(error => {
-                    console.log('⚠️ Autoplay prevented:', error);
-                    // User interaction might be needed, but we'll keep trying
+                    console.log('⚠️ Playback failed:', error);
+                    // Show controls for manual intervention
+                    setTimeout(() => {
+                        document.getElementById('controls').style.display = 'block';
+                    }, 3000);
                 });
             }
+
+            // Force play after 2 seconds if still paused
+            setTimeout(() => {
+                if (currentVideo.paused) {
+                    console.log('🔄 Force attempting playback');
+                    currentVideo.play().catch(e => console.log('Force play failed:', e));
+                }
+            }, 2000);
         }
 
-        function checkVideoPlayback() {
-            if (currentVideo && (currentVideo.readyState < 2 || currentVideo.paused)) {
-                console.log('🔄 Video not playing, retrying...');
-                startVideoPlayback();
-            }
+        function checkVideoStatus() {
+            if (!currentVideo) return;
+
+            const statusEl = document.getElementById('status');
             
-            // Check if video element has valid dimensions (not black screen)
-            if (currentVideo && currentVideo.videoWidth === 0 && currentVideo.videoHeight === 0) {
-                console.warn('⚠️ Video dimensions are 0x0 - possible black screen issue');
-                if (retryCount < maxRetries) {
-                    retryVideo();
+            if (currentVideo.readyState < 3) { // HAVE_FUTURE_DATA
+                console.log('🔄 Video still loading, checking status...');
+                
+                if (currentVideo.networkState === 3) { // NETWORK_NO_SOURCE
+                    statusEl.textContent = 'Video source issue. Trying alternative...';
+                    switchToEmbedded();
+                } else if (currentVideo.readyState === 0) { // HAVE_NOTHING
+                    statusEl.textContent = 'No video data loaded. Switching source...';
+                    switchToEmbedded();
                 }
             }
         }
 
-        function retryVideo() {
-            console.log('🔄 Retrying video playback');
-            hideError();
-            
-            // Reload the video
-            if (currentVideo) {
-                currentVideo.load();
-                setTimeout(startVideoPlayback, 1000);
-            }
+        function switchToDirectLink() {
+            switchVideoSource('direct', 'Direct Download Link');
         }
 
-        function useFallbackVideo() {
-            console.log('🔄 Switching to fallback video');
-            const fallbackVideo = document.getElementById('fallback-video');
-            const videoSphere = document.getElementById('video-sphere');
+        function switchToEmbedded() {
+            switchVideoSource('embedded', 'Embedded Preview Link');
+        }
+
+        function useSampleVideo() {
+            switchVideoSource('sample', 'Sample 360° Video');
+        }
+
+        function switchVideoSource(sourceType, sourceName) {
+            console.log(`🔄 Switching to ${sourceName}`);
             
-            if (fallbackVideo && videoSphere) {
-                // Switch to fallback video
-                videoSphere.setAttribute('src', '#fallback-video');
-                currentVideo = fallbackVideo;
-                
-                // Set up monitoring for fallback video
-                setupVideoMonitoring();
-                startVideoPlayback();
-                
-                hideError();
-                showError('Using sample 360° video. Your video may need conversion.', 'warning');
-                setTimeout(hideError, 5000);
+            // Stop current video
+            if (currentVideo) {
+                currentVideo.pause();
+                currentVideo.currentTime = 0;
             }
+            
+            // Clear existing interval
+            clearInterval(progressInterval);
+            
+            // Update UI
+            const statusEl = document.getElementById('status');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            statusEl.textContent = `Switching to ${sourceName}...`;
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            
+            // Switch video source
+            currentSource = sourceType;
+            const newSource = videoSources[sourceType];
+            document.getElementById('video-sphere').setAttribute('src', `#${newSource.id}`);
+            currentVideo = document.getElementById(newSource.id);
+            
+            // Reset load time
+            loadStartTime = Date.now();
+            
+            // Set up new listeners and start playback
+            setupVideoListeners();
+            startProgressSimulation();
+            setTimeout(attemptPlayback, 500);
+            
+            // Hide controls after successful switch
+            document.getElementById('controls').style.display = 'none';
         }
 
         function hideLoading() {
@@ -278,42 +379,26 @@
             }, 1000);
         }
 
-        function showError(message, type = 'error') {
-            const errorEl = document.getElementById('error-message');
-            const errorText = document.getElementById('error-text');
-            
-            errorText.textContent = message;
-            errorEl.style.display = 'block';
-            errorEl.style.borderColor = type === 'warning' ? '#ff9800' : '#f44336';
-        }
-
-        function hideError() {
-            const errorEl = document.getElementById('error-message');
-            errorEl.style.display = 'none';
-        }
-
-        // Add global click handler to help with autoplay
+        // Global click handler to help with autoplay
         document.addEventListener('click', function() {
             if (currentVideo && currentVideo.paused) {
                 currentVideo.play().catch(e => {
-                    console.log('Manual play failed:', e);
+                    console.log('Manual play on click failed:', e);
                 });
             }
         });
 
-        // Log video info for debugging
-        setTimeout(() => {
-            if (currentVideo) {
-                console.log('📊 Video Info:', {
-                    readyState: currentVideo.readyState,
-                    networkState: currentVideo.networkState,
-                    videoWidth: currentVideo.videoWidth,
-                    videoHeight: currentVideo.videoHeight,
-                    duration: currentVideo.duration,
-                    error: currentVideo.error
-                });
+        // Network status monitoring
+        window.addEventListener('online', function() {
+            console.log('🌐 Network connection restored');
+            if (currentVideo && currentVideo.paused) {
+                currentVideo.play().catch(e => console.log('Resume play failed:', e));
             }
-        }, 3000);
+        });
+
+        window.addEventListener('offline', function() {
+            console.log('❌ Network connection lost');
+        });
     </script>
 </body>
 </html>
