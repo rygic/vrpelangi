@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebVR 360 Video</title>
+    <title>WebXR 360 Video</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
         body {
@@ -9,173 +9,133 @@
             padding: 0;
             overflow: hidden;
             background: #000;
+            font-family: Arial, sans-serif;
         }
-        #vrButton {
+        #enterVR {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 12px 20px;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 14px;
-        }
-        #info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
             z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
+        }
+        #unsupported {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="info">
-        Putar device untuk melihat 360°<br>
-        Klik VR untuk mode Cardboard
+    <button id="enterVR">ENTER VR</button>
+    <div id="unsupported">
+        WebXR not supported in your browser.<br>
+        Try Chrome, Firefox Reality, or Oculus Browser.
     </div>
-    <button id="vrButton">ENTER VR</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/VRControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/effects/VREffect.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/webvr-polyfill@0.10.12/build/webvr-polyfill.min.js"></script>
-
+    
     <script>
         let scene, camera, renderer, video, videoTexture, sphere;
-        let vrDisplay, vrControls, vrEffect;
-        let isVRMode = false;
+        let session = null;
 
-        // Initialize WebVR
-        function init() {
+        async function init() {
             // Create scene
             scene = new THREE.Scene();
 
             // Create camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            scene.add(camera);
 
-            // Create renderer with WebGL
+            // Create renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.xr.enabled = true;
             document.body.appendChild(renderer.domElement);
 
-            // Create video element for YouTube (gunakan direct video link jika ada)
+            // Create video sphere
+            const geometry = new THREE.SphereGeometry(10, 60, 40);
+            geometry.scale(-1, 1, 1);
+
             video = document.createElement('video');
-            video.src = 'https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1';
+            video.src = 'https://www.youtube.com/embed/5Jyx7XXESI4';
             video.loop = true;
-            video.muted = true; // Required for autoplay
+            video.muted = true;
             video.crossOrigin = "anonymous";
             video.playsInline = true;
 
-            // Create video texture
             videoTexture = new THREE.VideoTexture(video);
-            videoTexture.minFilter = THREE.LinearFilter;
-            videoTexture.magFilter = THREE.LinearFilter;
-            videoTexture.format = THREE.RGBFormat;
-
-            // Create sphere for 360 video
-            const geometry = new THREE.SphereGeometry(500, 60, 40);
-            geometry.scale(-1, 1, 1); // Flip inside out
-
             const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+
             sphere = new THREE.Mesh(geometry, material);
             scene.add(sphere);
 
-            // Set camera position
-            camera.position.set(0, 0, 0.1);
-
-            // Initialize VR
-            initVR();
-
             // Start video
-            video.play().catch(e => {
-                console.log('Autoplay prevented:', e);
-                // Add click to play
-                document.body.addEventListener('click', () => {
-                    if (video.paused) {
-                        video.play();
-                    }
-                });
-            });
+            video.play();
 
-            // Handle window resize
-            window.addEventListener('resize', onWindowResize, false);
-
-            // Start animation loop
-            animate();
-        }
-
-        function initVR() {
-            // Initialize VR controls
-            vrControls = new THREE.VRControls(camera);
-            
-            // Initialize VR effect
-            vrEffect = new THREE.VREffect(renderer);
-            vrEffect.setSize(window.innerWidth, window.innerHeight);
-
-            // Check for VR display
-            if (navigator.getVRDisplays) {
-                navigator.getVRDisplays().then(function(displays) {
-                    if (displays.length > 0) {
-                        vrDisplay = displays[0];
-                        vrEffect.setVRDisplay(vrDisplay);
-                        console.log('VR Display found:', vrDisplay);
-                    }
-                });
-            }
-
-            // VR Button event
-            document.getElementById('vrButton').addEventListener('click', function() {
-                if (vrDisplay) {
-                    if (!isVRMode) {
-                        vrDisplay.requestPresent([{ source: renderer.domElement }]);
-                        isVRMode = true;
-                        this.textContent = 'EXIT VR';
-                    } else {
-                        vrDisplay.exitPresent();
-                        isVRMode = false;
-                        this.textContent = 'ENTER VR';
-                    }
+            // WebXR session
+            const button = document.getElementById('enterVR');
+            button.addEventListener('click', async () => {
+                if (session === null) {
+                    await startXR();
                 } else {
-                    alert('VR not supported on this device');
+                    await endXR();
                 }
             });
+
+            // Check WebXR support
+            if (navigator.xr) {
+                navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+                    button.textContent = supported ? 'ENTER VR' : 'VR NOT SUPPORTED';
+                    button.disabled = !supported;
+                });
+            } else {
+                document.getElementById('unsupported').style.display = 'block';
+                button.style.display = 'none';
+            }
+
+            // Animation loop
+            renderer.setAnimationLoop(() => {
+                renderer.render(scene, camera);
+            });
         }
 
-        function onWindowResize() {
+        async function startXR() {
+            try {
+                session = await navigator.xr.requestSession('immersive-vr');
+                session.addEventListener('end', endXR);
+
+                await renderer.xr.setSession(session);
+                document.getElementById('enterVR').textContent = 'EXIT VR';
+            } catch (error) {
+                console.error('Error starting XR session:', error);
+            }
+        }
+
+        async function endXR() {
+            if (session) {
+                await session.end();
+                session = null;
+                document.getElementById('enterVR').textContent = 'ENTER VR';
+            }
+        }
+
+        // Handle resize
+        window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            if (vrEffect) {
-                vrEffect.setSize(window.innerWidth, window.innerHeight);
-            }
-        }
+        });
 
-        function animate() {
-            // Update VR controls if in VR mode
-            if (isVRMode && vrControls) {
-                vrControls.update();
-            }
-
-            // Render scene
-            if (isVRMode && vrEffect) {
-                vrEffect.render(scene, camera);
-            } else {
-                renderer.render(scene, camera);
-            }
-
-            requestAnimationFrame(animate);
-        }
-
-        // Start the application
+        // Initialize
         init();
     </script>
 </body>
