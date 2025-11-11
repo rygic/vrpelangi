@@ -2,15 +2,20 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-youtube-component@1.0.1/dist/aframe-youtube-component.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <a-scene>
-        <!-- Gunakan iframe sebagai fallback -->
+    <a-scene vr-mode-ui="enabled: true">
+        <!-- YouTube Video 360 -->
         <a-entity 
-            geometry="primitive: sphere; radius: 500" 
-            material="src: https://drive.google.com/file/d/1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a/preview"
+            youtube="videoId: 5Jyx7XXESI4"
+            geometry="primitive: sphere; radius: 10"
+            material="shader: flat; side: back"
             scale="-1 1 1">
         </a-entity>
+        
+        <!-- Camera & Controls -->
         <a-entity camera look-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
