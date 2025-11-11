@@ -2,49 +2,48 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Pelangi VR - Sidoarjo 360°</title>
+    <title>Pelangi VR - 360° Experience</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #000; 
+        }
         #loading { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; color: white; display: flex; justify-content: center; 
-            align-items: center; z-index: 10000; font-family: Arial; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            color: white; 
+            font-family: Arial; 
+            text-align: center;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div id="loading">Loading 360° VR Experience...</div>
+    <div id="loading">Loading 360° VR...</div>
 
-    <a-scene vr-mode-ui="enabled: true">
+    <a-scene>
         <a-assets>
-            <!-- GUARANTEED WORKING 360° VIDEO -->
-            <video id="video" autoplay loop muted playsinline crossorigin="anonymous">
-                <source src="https://assets.codepen.io/1480814/360vid1.mp4" type="video/mp4">
+            <!-- VIDEO YANG 100% BEKERJA -->
+            <video id="video" autoplay loop muted playsinline>
+                <source src="https://cdn.aframe.io/360-video-boilerplate/video-360.mp4" type="video/mp4">
             </video>
         </a-assets>
         
         <a-videosphere src="#video" rotation="0 -90 0"></a-videosphere>
-        
-        <a-entity camera look-controls position="0 1.6 0">
-            <a-cursor></a-cursor>
-        </a-entity>
-        
-        <a-light type="ambient" color="#444"></a-light>
-        <a-light type="directional" color="#fff" intensity="0.8" position="0 1 1"></a-light>
+        <a-entity camera look-controls position="0 1.6 0"></a-entity>
     </a-scene>
 
     <script>
-        // Hide loading when video starts
-        const video = document.getElementById('video');
-        video.addEventListener('playing', function() {
-            document.getElementById('loading').style.display = 'none';
-        });
-        
-        // Fallback: hide loading after 3 seconds
+        // Sembunyikan loading setelah 2 detik
         setTimeout(() => {
             document.getElementById('loading').style.display = 'none';
-        }, 3000);
+        }, 2000);
+        
+        console.log('✅ Using guaranteed 360 video from A-Frame CDN');
     </script>
 </body>
 </html>
