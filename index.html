@@ -1,149 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelangi VR - Sidoarjo 360° Experience</title>
+    <meta charset="utf-8">
+    <title>Pelangi VR - Sidoarjo 360°</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            background: #000;
-        }
-        
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            color: white;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(253, 187, 45, 0.3);
-            border-radius: 50%;
-            border-top-color: #fdbb2d;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        #start-button {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #fdbb2d;
-            color: black;
-            border: none;
-            padding: 20px 40px;
-            border-radius: 10px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10001;
-            display: none;
-        }
-        
-        #start-button:hover {
-            background: #ffcc44;
-        }
-    </style>
+    <style>body{margin:0;overflow:hidden;background:#000;}</style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading">
-        <div class="spinner"></div>
-        <div>Loading Pelangi VR Experience...</div>
-    </div>
-
-    <!-- Start Button -->
-    <button id="start-button" onclick="startExperience()">▶ START VR EXPERIENCE</button>
-
-    <!-- A-Frame Scene -->
-    <a-scene vr-mode-ui="enabled: true">
+    <a-scene>
         <a-assets>
-            <!-- Direct streaming from Google Drive -->
-            <video id="sidoarjo-video" 
-                   autoplay
-                   loop
-                   muted
-                   crossorigin="anonymous"
-                   playsinline>
+            <video id="video" autoplay loop muted playsinline crossorigin="anonymous">
                 <source src="https://drive.google.com/uc?export=download&id=1QJj8ZcMjxcD8MZwbPWi4kWYnZwb57V-a" type="video/mp4">
             </video>
         </a-assets>
-
-        <!-- 360 Video -->
-        <a-videosphere src="#sidoarjo-video" rotation="0 -90 0"></a-videosphere>
-
-        <!-- Camera -->
+        <a-videosphere src="#video" rotation="0 -90 0"></a-videosphere>
         <a-entity camera look-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
     </a-scene>
-
-    <script>
-        // Wait for A-Frame to load
-        document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('sidoarjo-video');
-            const loading = document.getElementById('loading');
-            const startButton = document.getElementById('start-button');
-            
-            // Try to autoplay the video
-            video.play().then(() => {
-                // Autoplay successful - hide loading
-                setTimeout(() => {
-                    loading.style.display = 'none';
-                }, 1000);
-            }).catch((error) => {
-                // Autoplay blocked - show start button
-                console.log('Autoplay blocked, showing start button');
-                loading.style.display = 'none';
-                startButton.style.display = 'block';
-            });
-            
-            // Video event listeners
-            video.addEventListener('loadeddata', function() {
-                console.log('✅ Video loaded successfully');
-            });
-            
-            video.addEventListener('error', function(e) {
-                console.error('❌ Video error:', e);
-                loading.innerHTML = 'Error loading video. Please refresh the page.';
-            });
-        });
-
-        function startExperience() {
-            const video = document.getElementById('sidoarjo-video');
-            const startButton = document.getElementById('start-button');
-            
-            video.play().then(() => {
-                startButton.style.display = 'none';
-            }).catch((error) => {
-                console.error('Play failed:', error);
-                startButton.textContent = '❌ Click to Try Again';
-            });
-        }
-    </script>
 </body>
 </html>
