@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelangi VR - MOV Format with Autoplay Fix</title>
+    <title>Pelangi VR - Sidoarjo Legends in 360°</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
         * {
@@ -31,7 +31,6 @@
             align-items: center;
             z-index: 10000;
             color: white;
-            transition: opacity 1s ease;
         }
         
         .loading-logo {
@@ -49,25 +48,18 @@
             max-width: 80%;
         }
         
-        .loading-bar-container {
-            width: 300px;
-            height: 6px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-            overflow: hidden;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fdbb2d;
+            animation: spin 1s ease-in-out infinite;
             margin-bottom: 20px;
         }
         
-        .loading-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #fdbb2d, #b21f1f);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        
-        .loading-text {
-            font-size: 1rem;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         #ui-container {
@@ -80,7 +72,7 @@
         }
         
         #header {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 15px 20px;
             text-align: center;
@@ -99,113 +91,45 @@
             opacity: 0.9;
         }
         
-        #video-controls {
-            position: absolute;
-            top: 120px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 350px;
-            backdrop-filter: blur(10px);
-            border-right: 4px solid #1a2a6c;
-            pointer-events: auto;
-        }
-        
-        #video-controls h3 {
-            color: #fdbb2d;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .format-info {
-            background: #2d5b2d;
-            padding: 8px 12px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-        
-        .source-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 10px 0;
-        }
-        
-        .source-btn {
-            background: #1a2a6c;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .source-btn:hover {
-            background: #2a3a9c;
-        }
-        
-        .source-btn.active {
-            background: #b21f1f;
-            border: 2px solid #fdbb2d;
-        }
-        
-        .control-btn {
-            background: #2d5b2d;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 3px;
-            transition: background 0.3s ease;
-        }
-        
-        .control-btn:hover {
-            background: #3d6b3d;
-        }
-        
-        #video-status {
+        #video-solution {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.95);
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            z-index: 999;
-            display: none;
-            max-width: 500px;
-            border: 3px solid #fdbb2d;
-        }
-        
-        .status-success { color: #4CAF50; }
-        .status-error { color: #f44336; }
-        .status-warning { color: #ff9800; }
-
-        #autoplay-prompt {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
-            color: white;
-            padding: 30px;
+            padding: 40px;
             border-radius: 15px;
             text-align: center;
             z-index: 1001;
-            display: none;
             border: 3px solid #fdbb2d;
-            max-width: 400px;
+            max-width: 500px;
         }
-
+        
+        .solution-btn {
+            background: #fdbb2d;
+            color: black;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        
+        .solution-btn:hover {
+            background: #ffcc44;
+            transform: scale(1.05);
+        }
+        
+        .solution-btn.secondary {
+            background: #1a2a6c;
+            color: white;
+        }
+        
         #credits {
             position: absolute;
             bottom: 10px;
@@ -216,41 +140,40 @@
             text-align: right;
         }
 
-        .troubleshoot-btn {
-            background: #ff9800;
-            color: black;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            font-weight: bold;
+        #info-panel {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            border-left: 4px solid #b21f1f;
+            pointer-events: auto;
         }
-
-        .browser-support {
-            background: #1a2a6c;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 0.8rem;
+        
+        #info-panel h2 {
+            color: #fdbb2d;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
-
-        #play-button {
-            background: #fdbb2d;
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 15px 0;
-            transition: all 0.3s ease;
+        
+        .legend-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-
-        #play-button:hover {
-            background: #ffcc44;
-            transform: scale(1.05);
+        
+        .legend-item:last-child {
+            border-bottom: none;
+        }
+        
+        .legend-item h3 {
+            color: #1a2a6c;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -259,92 +182,69 @@
     <div id="loading-screen">
         <div class="loading-logo">PELANGI VR</div>
         <div class="loading-subtitle">Introducing Legends and Origins of Sidoarjo Through VR Technology</div>
-        <div class="loading-bar-container">
-            <div class="loading-bar" id="loading-bar"></div>
-        </div>
-        <div class="loading-text" id="loading-text">Loading MOV 360° Video...</div>
+        <div class="spinner"></div>
+        <div class="loading-text">Preparing your VR experience...</div>
     </div>
 
-    <!-- Autoplay Prompt -->
-    <div id="autoplay-prompt">
-        <h3>🎬 Video Ready!</h3>
-        <p>Click the button below to start the VR experience</p>
-        <button id="play-button">▶️ START VR EXPERIENCE</button>
-        <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
-            Autoplay is prevented by browser.<br>
-            Click to start playback.
+    <!-- Video Solution Panel -->
+    <div id="video-solution">
+        <h2>🎬 Start VR Experience</h2>
+        <p style="margin: 20px 0; line-height: 1.6;">
+            Choose how you want to experience Sidoarjo's legends in 360° VR
         </p>
-    </div>
-
-    <!-- Video Status -->
-    <div id="video-status">
-        <h3 id="status-title">MOV Video Status</h3>
-        <p id="status-message"></p>
-        <div id="troubleshoot-section" style="margin-top: 20px; display: none;">
-            <h4 style="color: #ff9800; margin-bottom: 10px;">Video Solutions:</h4>
-            <button class="troubleshoot-btn" onclick="switchSource('mov-preview')">MOV Preview</button>
-            <button class="troubleshoot-btn" onclick="switchSource('mov-embedded')">MOV Embedded</button>
+        
+        <button class="solution-btn" onclick="startVideoExperience('sample')">
+            🚀 Try Sample 360° Video
+        </button>
+        
+        <button class="solution-btn secondary" onclick="showUploadGuide()">
+            📁 Use Your Own Video
+        </button>
+        
+        <div style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <p style="font-size: 0.9rem; opacity: 0.8;">
+                💡 <strong>Tip:</strong> For best results, use MP4 format videos<br>
+                Chrome & Firefox work best for 360° VR
+            </p>
         </div>
-        <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Retry Current Source</button>
     </div>
 
     <!-- UI Container -->
-    <div id="ui-container">
+    <div id="ui-container" style="display: none;">
         <div id="header">
             <h1>Pelangi VR</h1>
             <p>Introducing Legends and Origins of Sidoarjo Through VR Technology</p>
         </div>
         
-        <!-- Video Controls -->
-        <div id="video-controls">
-            <h3>🎬 Video Sources</h3>
+        <div id="info-panel">
+            <h2>Sidoarjo Legends</h2>
             
-            <div class="format-info">
-                <strong>Format: MOV (QuickTime)</strong><br>
-                Codec: H.264 | Resolution: 360°
-            </div>
-
-            <div class="browser-support">
-                <strong>Browser Support:</strong><br>
-                ✅ Safari (Mac/iOS)<br>
-                ⚠️ Chrome (Limited)<br>
-                ⚠️ Firefox (Limited)
+            <div class="legend-item">
+                <h3>Origin of Sidoarjo Name</h3>
+                <p>The name Sidoarjo comes from "Sido" (to become) and "Arjo" (valuable), reflecting hopes for prosperity.</p>
             </div>
             
-            <div class="source-buttons">
-                <button class="source-btn active" onclick="switchSource('mov-preview')">MOV Preview</button>
-                <button class="source-btn" onclick="switchSource('mov-embedded')">MOV Embedded</button>
+            <div class="legend-item">
+                <h3>Legend of Joko Bayu</h3>
+                <p>Story of local hero Joko Bayu's struggle against Dutch colonists in Sidoarjo region.</p>
             </div>
             
-            <div style="margin-top: 15px;">
-                <button class="control-btn" onclick="togglePlay()">⏯️ Play/Pause</button>
-                <button class="control-btn" onclick="toggleMute()">🔊 Toggle Sound</button>
-                <button class="control-btn" onclick="checkVideoStatus()">📊 Video Info</button>
+            <div class="legend-item">
+                <h3>Water Source Myth</h3>
+                <p>Legend of magical water source bringing fertility to Sidoarjo lands.</p>
             </div>
         </div>
         
         <div id="credits">
-            Pelangi VR Experience | MOV 360° Format<br>
+            Pelangi VR Experience<br>
             © 2025 Sidoarjo Heritage
         </div>
     </div>
 
     <!-- A-Frame Scene -->
-    <a-scene>
-        <a-assets>
-            <!-- Source 1: MOV Preview Link -->
-            <video id="mov-preview-video" preload="none" crossorigin="anonymous" playsinline muted>
-                <source src="https://drive.google.com/file/d/1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA/preview" type="video/quicktime">
-            </video>
-            
-            <!-- Source 2: MOV Embedded View -->
-            <video id="mov-embedded-video" preload="none" crossorigin="anonymous" playsinline muted>
-                <source src="https://drive.google.com/uc?export=view&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/quicktime">
-            </video>
-        </a-assets>
-
-        <a-videosphere src="#mov-preview-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
-
+    <a-scene style="display: none;" id="vr-scene">
+        <!-- We'll dynamically add video sources -->
+        
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
@@ -360,325 +260,193 @@
 
         <a-light type="ambient" color="#4455aa"></a-light>
         <a-light type="directional" color="#ffffff" intensity="0.8" position="-0.5 1 1"></a-light>
+
+        <!-- Information Points -->
+        <a-entity geometry="primitive: sphere; radius: 0.2" material="color: #1a2a6c" position="-2 2 -3"
+                 animation="property: rotation; to: 360 0 0; loop: true; dur: 8000">
+            <a-text value="History" align="center" position="0 0.4 0" color="#ffffff" scale="1.5 1.5 1.5"></a-text>
+        </a-entity>
     </a-scene>
 
-    <script>
-        // Video sources configuration for MOV format (without direct download)
-        const videoSources = {
-            'mov-preview': {
-                id: 'mov-preview-video', 
-                name: 'MOV Preview Link',
-                type: 'video/quicktime',
-                description: 'Google Drive preview link'
-            },
-            'mov-embedded': {
-                id: 'mov-embedded-video',
-                name: 'MOV Embedded View',
-                type: 'video/quicktime',
-                description: 'MOV with embedded viewer'
-            }
-        };
+    <!-- Upload Guide Modal -->
+    <div id="upload-guide" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px; border-radius: 15px; z-index: 1002; max-width: 600px; border: 3px solid #fdbb2d;">
+        <h3>📁 How to Use Your Own Video</h3>
+        <div style="text-align: left; margin: 20px 0; line-height: 1.6;">
+            <h4>Step 1: Prepare Your Video</h4>
+            <ul>
+                <li>Format: MP4 (recommended) or MOV</li>
+                <li>Type: 360° equirectangular video</li>
+                <li>Resolution: 4K (3840x1920) or higher</li>
+            </ul>
+            
+            <h4>Step 2: Upload to Cloud Storage</h4>
+            <p><strong>Recommended:</strong> YouTube (set as 360° video)</p>
+            <p><strong>Alternative:</strong> Google Drive, Dropbox, or Vimeo</p>
+            
+            <h4>Step 3: Get Shareable Link</h4>
+            <p>For Google Drive: Make sure sharing is set to "Anyone with the link"</p>
+            
+            <h4>Step 4: Enter Your Video URL</h4>
+            <input type="text" id="video-url" placeholder="https://your-video-link.com/video.mp4" 
+                   style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #fdbb2d; border-radius: 5px; background: rgba(255,255,255,0.1); color: white;">
+        </div>
+        <button class="solution-btn" onclick="useCustomVideo()">Use This Video</button>
+        <button class="solution-btn secondary" onclick="hideUploadGuide()">Back</button>
+    </div>
 
-        let currentSource = 'mov-preview';
-        let currentVideo = null;
-        let isFirstPlay = true;
+    <script>
+        // Sample 360° video URLs that should work
+        const sampleVideos = [
+            {
+                name: "Sample 360° Video 1",
+                url: "https://assets.codepen.io/1480814/360vid1.mp4",
+                type: "video/mp4"
+            },
+            {
+                name: "Sample 360° Video 2", 
+                url: "https://assets.codepen.io/1480814/360vid2.mp4",
+                type: "video/mp4"
+            }
+        ];
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            currentVideo = document.getElementById(videoSources[currentSource].id);
-            setupVideoListeners();
-            simulateLoading();
-            checkMOVSupport();
+            // Hide loading screen after a moment
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+            }, 2000);
         });
 
-        function simulateLoading() {
-            let progress = 0;
-            const loadingBar = document.getElementById('loading-bar');
-            const loadingText = document.getElementById('loading-text');
+        function startVideoExperience(type) {
+            console.log('Starting video experience:', type);
             
-            const interval = setInterval(() => {
-                progress += Math.random() * 12;
-                if (progress > 100) progress = 100;
-                
-                loadingBar.style.width = `${progress}%`;
-                
-                if (progress < 30) loadingText.textContent = "Initializing video support...";
-                else if (progress < 60) loadingText.textContent = "Checking format compatibility...";
-                else if (progress < 80) loadingText.textContent = "Loading 360° environment...";
-                else loadingText.textContent = "Finalizing VR experience...";
-                
-                if (progress === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('loading-screen').style.opacity = '0';
-                        setTimeout(() => {
-                            document.getElementById('loading-screen').style.display = 'none';
-                            initializeVideoPlayback();
-                        }, 1000);
-                    }, 500);
-                }
-            }, 200);
+            if (type === 'sample') {
+                // Use sample video
+                const sampleVideo = sampleVideos[0];
+                setupVideoScene(sampleVideo.url, sampleVideo.type);
+            }
         }
 
-        function setupVideoListeners() {
-            Object.values(videoSources).forEach(source => {
-                const video = document.getElementById(source.id);
-                if (video) {
-                    video.addEventListener('loadeddata', () => {
-                        if (source.id === videoSources[currentSource].id) {
-                            console.log(`✅ ${source.name} loaded successfully`);
-                        }
-                    });
-                    
-                    video.addEventListener('canplaythrough', () => {
-                        if (source.id === videoSources[currentSource].id && isFirstPlay) {
-                            console.log(`${source.name} ready to play through`);
-                        }
-                    });
-                    
-                    video.addEventListener('error', (e) => {
-                        if (source.id === videoSources[currentSource].id) {
-                            const errorMsg = getVideoError(video.error);
-                            showStatus('error', 
-                                `❌ ${source.name} failed!\n` +
-                                `Error: ${errorMsg}\n` +
-                                `Format: ${source.type}`
-                            );
-                            document.getElementById('troubleshoot-section').style.display = 'block';
-                        }
-                    });
-                }
-            });
-        }
-
-        function getVideoError(error) {
-            if (!error) return 'Unknown error';
+        function setupVideoScene(videoUrl, videoType) {
+            console.log('Setting up video scene with:', videoUrl);
             
-            const errorCodes = {
-                1: 'MEDIA_ERR_ABORTED - Fetching process aborted',
-                2: 'MEDIA_ERR_NETWORK - Network error',
-                3: 'MEDIA_ERR_DECODE - Decoding error',
-                4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - Format not supported'
-            };
+            // Hide solution panel
+            document.getElementById('video-solution').style.display = 'none';
             
-            return errorCodes[error.code] || `Error code: ${error.code}`;
-        }
-
-        function initializeVideoPlayback() {
-            console.log('🚀 Initializing video playback with autoplay pattern...');
+            // Show VR scene and UI
+            document.getElementById('vr-scene').style.display = 'block';
+            document.getElementById('ui-container').style.display = 'block';
             
-            // Show autoplay prompt
-            document.getElementById('autoplay-prompt').style.display = 'block';
-            
-            // Try autoplay but expect it to be blocked
-            attemptAutoplay().then(success => {
-                if (success) {
-                    console.log('✅ Autoplay succeeded!');
-                    document.getElementById('autoplay-prompt').style.display = 'none';
-                    showStatus('success', 'Autoplay started successfully!', 3000);
-                } else {
-                    console.log('⚠️ Autoplay was prevented - showing play button');
-                    // Play button will handle user interaction
-                }
-            }).catch(error => {
-                console.log('❌ Autoplay failed:', error);
-                document.getElementById('autoplay-prompt').style.display = 'block';
-            });
-        }
-
-        function attemptAutoplay() {
-            return new Promise((resolve, reject) => {
-                const video = currentVideo;
-                
-                // Set video to play
-                video.loop = true;
-                video.muted = true; // Required for autoplay
-                
-                const playPromise = video.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        // Autoplay started successfully
-                        isFirstPlay = false;
-                        resolve(true);
-                    }).catch(error => {
-                        // Autoplay was prevented
-                        console.log('Autoplay prevented:', error);
-                        resolve(false);
-                    });
-                } else {
-                    // Old browsers without promise support
-                    resolve(true);
-                }
-            });
-        }
-
-        function startVideoPlayback() {
-            console.log('🎬 Starting video playback via user interaction');
-            
-            const video = currentVideo;
+            // Create video element dynamically
+            const video = document.createElement('video');
+            video.id = 'main-video';
+            video.src = videoUrl;
+            video.crossOrigin = 'anonymous';
+            video.playsInline = true;
+            video.muted = true; // Required for autoplay
             video.loop = true;
+            video.preload = 'auto';
+            
+            // Add video to assets
+            const assets = document.querySelector('a-assets');
+            assets.appendChild(video);
+            
+            // Create videosphere
+            const videosphere = document.createElement('a-videosphere');
+            videosphere.setAttribute('src', '#' + video.id);
+            videosphere.setAttribute('rotation', '0 -90 0');
+            
+            const scene = document.querySelector('a-scene');
+            scene.appendChild(videosphere);
+            
+            // Try to play video
+            setTimeout(() => {
+                playVideoWithFallback(video);
+            }, 1000);
+        }
+
+        function playVideoWithFallback(video) {
+            console.log('Attempting to play video...');
             
             const playPromise = video.play();
             
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    // Automatic playback started!
-                    console.log('✅ Playback started successfully');
-                    document.getElementById('autoplay-prompt').style.display = 'none';
-                    showStatus('success', 'VR experience started!', 2000);
-                    isFirstPlay = false;
+                    console.log('✅ Video playback started successfully');
                 }).catch(error => {
-                    // Auto-play was prevented
-                    console.log('❌ Playback failed:', error);
-                    showStatus('error', 
-                        `Playback failed: ${error.message}\n` +
-                        `Please try a different video source.`
-                    );
+                    console.log('❌ Autoplay failed:', error);
+                    showPlayButton();
                 });
             }
         }
 
-        function switchSource(sourceType) {
-            // Update active button
-            document.querySelectorAll('.source-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Stop current video
-            if (currentVideo) {
-                currentVideo.pause();
-                currentVideo.currentTime = 0;
-            }
-            
-            // Update current source
-            currentSource = sourceType;
-            const source = videoSources[sourceType];
-            
-            // Update video sphere source
-            document.getElementById('video-sphere').setAttribute('src', `#${source.id}`);
-            
-            // Get new video element
-            currentVideo = document.getElementById(source.id);
-            currentVideo.muted = true; // Ensure muted for autoplay
-            currentVideo.loop = true;
-            
-            console.log(`🔄 Switching to: ${source.name}`);
-            showStatus('warning', 
-                `Switching to: ${source.name}\n` +
-                `Format: ${source.type}`
-            );
-            
-            // Load the new video
-            currentVideo.load();
-            
-            // Try to play after a short delay
-            setTimeout(() => {
-                attemptAutoplay().then(success => {
-                    if (!success) {
-                        document.getElementById('autoplay-prompt').style.display = 'block';
-                    }
-                });
-            }, 1000);
-            
-            document.getElementById('troubleshoot-section').style.display = 'none';
+        function showPlayButton() {
+            const playBtn = document.createElement('button');
+            playBtn.innerHTML = '▶️ Click to Play Video';
+            playBtn.className = 'solution-btn';
+            playBtn.style.position = 'absolute';
+            playBtn.style.top = '50%';
+            playBtn.style.left = '50%';
+            playBtn.style.transform = 'translate(-50%, -50%)';
+            playBtn.style.zIndex = '1001';
+            playBtn.onclick = function() {
+                const video = document.getElementById('main-video');
+                video.play();
+                playBtn.remove();
+            };
+            document.body.appendChild(playBtn);
         }
 
-        function togglePlay() {
-            if (currentVideo.paused) {
-                const playPromise = currentVideo.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        showStatus('success', 'Video playing', 2000);
-                    }).catch(error => {
-                        showStatus('error', 'Play failed: ' + error.message);
-                    });
+        function showUploadGuide() {
+            document.getElementById('upload-guide').style.display = 'block';
+        }
+
+        function hideUploadGuide() {
+            document.getElementById('upload-guide').style.display = 'none';
+        }
+
+        function useCustomVideo() {
+            const videoUrl = document.getElementById('video-url').value;
+            
+            if (videoUrl) {
+                // Determine video type from URL
+                let videoType = 'video/mp4';
+                if (videoUrl.includes('.mov')) {
+                    videoType = 'video/quicktime';
+                } else if (videoUrl.includes('.webm')) {
+                    videoType = 'video/webm';
                 }
+                
+                setupVideoScene(videoUrl, videoType);
+                hideUploadGuide();
             } else {
-                currentVideo.pause();
-                showStatus('warning', 'Video paused', 2000);
+                alert('Please enter a valid video URL');
             }
         }
 
-        function toggleMute() {
-            currentVideo.muted = !currentVideo.muted;
-            showStatus('success', 
-                `Sound ${currentVideo.muted ? '🔇 muted' : '🔊 unmuted'}`
-            );
-        }
-
-        function checkVideoStatus() {
-            const video = currentVideo;
-            const source = videoSources[currentSource];
-            
-            let status = `🎬 Video Information:\n\n`;
-            status += `Source: ${source.name}\n`;
-            status += `Format: ${source.type}\n`;
-            status += `Ready State: ${getReadyState(video.readyState)}\n`;
-            status += `Video Size: ${video.videoWidth}x${video.videoHeight}\n`;
-            status += `Duration: ${video.duration ? video.duration.toFixed(1) + 's' : 'Unknown'}\n`;
-            status += `Current Time: ${video.currentTime.toFixed(1)}s\n`;
-            status += `Muted: ${video.muted}\n`;
-            status += `Paused: ${video.paused}\n`;
-            status += `Loop: ${video.loop}\n`;
-            status += `Autoplay: ${video.autoplay}`;
-            
-            showStatus('warning', status, 6000);
-        }
-
-        function getReadyState(state) {
-            const states = ['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'];
-            return states[state] || 'UNKNOWN';
-        }
-
-        function checkMOVSupport() {
-            const video = document.createElement('video');
-            const movSupport = video.canPlayType('video/quicktime');
-            
-            if (!movSupport || movSupport === '') {
-                showStatus('warning', 
-                    'MOV format may not be fully supported in your browser.\n' +
-                    'Recommend converting to MP4 for better compatibility.',
-                    5000
-                );
+        // Add click sound and interaction
+        document.addEventListener('click', function() {
+            // This helps with autoplay policies
+            const video = document.getElementById('main-video');
+            if (video && video.paused) {
+                video.play().catch(e => console.log('Play failed:', e));
             }
-        }
-
-        function showStatus(type, message, autoHide = null) {
-            const statusTitle = document.getElementById('status-title');
-            const statusMessage = document.getElementById('status-message');
-            
-            statusTitle.className = `status-${type}`;
-            statusTitle.textContent = type === 'success' ? '✅ Success' :
-                                    type === 'error' ? '❌ Error' : '⚠️ Information';
-                                    
-            statusMessage.innerHTML = message.replace(/\n/g, '<br>');
-            document.getElementById('video-status').style.display = 'block';
-            
-            if (autoHide) {
-                setTimeout(() => {
-                    document.getElementById('video-status').style.display = 'none';
-                }, autoHide);
-            }
-        }
-
-        // Play button handler
-        document.getElementById('play-button').addEventListener('click', function() {
-            startVideoPlayback();
         });
 
-        // Retry button handler
-        document.getElementById('retry-btn').addEventListener('click', function() {
-            showStatus('warning', 'Retrying current video source...');
-            currentVideo.load();
-            setTimeout(() => {
-                attemptAutoplay().then(success => {
-                    if (!success) {
-                        document.getElementById('autoplay-prompt').style.display = 'block';
-                    }
-                });
-            }, 1000);
-        });
+        // Handle Google Drive links specifically
+        function processGoogleDriveLink(url) {
+            // Convert Google Drive share link to direct download link
+            if (url.includes('drive.google.com')) {
+                const fileId = url.match(/[-\w]{25,}/);
+                if (fileId) {
+                    return `https://drive.google.com/uc?export=download&id=${fileId[0]}`;
+                }
+            }
+            return url;
+        }
+
+        console.log('🎯 VR Experience Ready');
+        console.log('Available sample videos:', sampleVideos);
     </script>
 </body>
 </html>
