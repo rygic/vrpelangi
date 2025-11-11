@@ -1,24 +1,182 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-youtube-component@1.0.1/dist/aframe-youtube-component.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebVR 360 Video</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        #vrButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <a-scene vr-mode-ui="enabled: true">
-        <!-- YouTube Video 360 -->
-        <a-entity 
-            youtube="videoId: 5Jyx7XXESI4"
-            geometry="primitive: sphere; radius: 10"
-            material="shader: flat; side: back"
-            scale="-1 1 1">
-        </a-entity>
-        
-        <!-- Camera & Controls -->
-        <a-entity camera look-controls position="0 1.6 0">
-            <a-cursor></a-cursor>
-        </a-entity>
-    </a-scene>
+    <div id="info">
+        Putar device untuk melihat 360°<br>
+        Klik VR untuk mode Cardboard
+    </div>
+    <button id="vrButton">ENTER VR</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/VRControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/effects/VREffect.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webvr-polyfill@0.10.12/build/webvr-polyfill.min.js"></script>
+
+    <script>
+        let scene, camera, renderer, video, videoTexture, sphere;
+        let vrDisplay, vrControls, vrEffect;
+        let isVRMode = false;
+
+        // Initialize WebVR
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            scene.add(camera);
+
+            // Create renderer with WebGL
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // Create video element for YouTube (gunakan direct video link jika ada)
+            video = document.createElement('video');
+            video.src = 'https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1';
+            video.loop = true;
+            video.muted = true; // Required for autoplay
+            video.crossOrigin = "anonymous";
+            video.playsInline = true;
+
+            // Create video texture
+            videoTexture = new THREE.VideoTexture(video);
+            videoTexture.minFilter = THREE.LinearFilter;
+            videoTexture.magFilter = THREE.LinearFilter;
+            videoTexture.format = THREE.RGBFormat;
+
+            // Create sphere for 360 video
+            const geometry = new THREE.SphereGeometry(500, 60, 40);
+            geometry.scale(-1, 1, 1); // Flip inside out
+
+            const material = new THREE.MeshBasicMaterial({ map: videoTexture });
+            sphere = new THREE.Mesh(geometry, material);
+            scene.add(sphere);
+
+            // Set camera position
+            camera.position.set(0, 0, 0.1);
+
+            // Initialize VR
+            initVR();
+
+            // Start video
+            video.play().catch(e => {
+                console.log('Autoplay prevented:', e);
+                // Add click to play
+                document.body.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize, false);
+
+            // Start animation loop
+            animate();
+        }
+
+        function initVR() {
+            // Initialize VR controls
+            vrControls = new THREE.VRControls(camera);
+            
+            // Initialize VR effect
+            vrEffect = new THREE.VREffect(renderer);
+            vrEffect.setSize(window.innerWidth, window.innerHeight);
+
+            // Check for VR display
+            if (navigator.getVRDisplays) {
+                navigator.getVRDisplays().then(function(displays) {
+                    if (displays.length > 0) {
+                        vrDisplay = displays[0];
+                        vrEffect.setVRDisplay(vrDisplay);
+                        console.log('VR Display found:', vrDisplay);
+                    }
+                });
+            }
+
+            // VR Button event
+            document.getElementById('vrButton').addEventListener('click', function() {
+                if (vrDisplay) {
+                    if (!isVRMode) {
+                        vrDisplay.requestPresent([{ source: renderer.domElement }]);
+                        isVRMode = true;
+                        this.textContent = 'EXIT VR';
+                    } else {
+                        vrDisplay.exitPresent();
+                        isVRMode = false;
+                        this.textContent = 'ENTER VR';
+                    }
+                } else {
+                    alert('VR not supported on this device');
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (vrEffect) {
+                vrEffect.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        function animate() {
+            // Update VR controls if in VR mode
+            if (isVRMode && vrControls) {
+                vrControls.update();
+            }
+
+            // Render scene
+            if (isVRMode && vrEffect) {
+                vrEffect.render(scene, camera);
+            } else {
+                renderer.render(scene, camera);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start the application
+        init();
+    </script>
 </body>
 </html>
