@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pelangi VR - Legends and Origins of Sidoarjo</title>
+    <title>Pelangi VR - Sidoarjo Legends</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
         * {
@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Poppins', 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000;
             color: white;
             overflow: hidden;
             width: 100vw;
@@ -26,19 +26,17 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            background: rgba(0,0,0,0.7);
             padding: 15px 20px;
             text-align: center;
             z-index: 1000;
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid rgba(255,255,255,0.2);
         }
 
         #brandHeader h1 {
             font-size: 18px;
             margin-bottom: 5px;
             color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         #brandHeader .subtitle {
@@ -47,14 +45,14 @@
             font-weight: 300;
         }
 
-        /* Main VR Button */
+        /* VR Button */
         #enterVR {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             padding: 16px 35px;
-            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            background: #4CAF50;
             color: white;
             border: none;
             border-radius: 50px;
@@ -62,126 +60,12 @@
             font-size: 16px;
             font-weight: 600;
             z-index: 1000;
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         #enterVR:hover {
+            background: #45a049;
             transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 12px 30px rgba(255, 107, 107, 0.6);
-        }
-
-        /* Navigation Menu */
-        #navMenu {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            background: rgba(0,0,0,0.8);
-            padding: 15px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            margin: 5px 0;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .nav-item:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateX(5px);
-        }
-
-        .nav-item.active {
-            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
-        }
-
-        .nav-icon {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        /* Loading Screen */
-        #loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            transition: opacity 0.5s ease;
-        }
-
-        .logo {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .logo-gradient {
-            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 4px solid #fff;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px 0;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Info Panel */
-        #infoPanel {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            max-width: 300px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        #infoPanel h3 {
-            color: #FFD93D;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        #infoPanel p {
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 10px;
-            opacity: 0.9;
         }
 
         /* Play Button */
@@ -199,39 +83,64 @@
             font-size: 14px;
             font-weight: 600;
             z-index: 1000;
-            display: none;
         }
 
-        /* Unsupported Message */
-        #unsupported {
+        /* Loading Screen */
+        #loading {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
             text-align: center;
-            background: rgba(255,0,0,0.1);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid #ff4444;
-            display: none;
-            max-width: 80%;
-            backdrop-filter: blur(10px);
+            color: #4CAF50;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid #4CAF50;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Instructions */
+        #instructions {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 999;
         }
 
         canvas {
             display: block;
             width: 100vw;
             height: 100vh;
-        }
-
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            #brandHeader h1 { font-size: 16px; }
-            #brandHeader .subtitle { font-size: 11px; }
-            #navMenu { top: 70px; left: 10px; padding: 10px; }
-            .nav-item { padding: 8px 12px; font-size: 12px; }
-            #infoPanel { top: 70px; right: 10px; max-width: 250px; padding: 15px; }
-            #enterVR { bottom: 20px; padding: 14px 30px; font-size: 14px; }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -240,57 +149,26 @@
     <!-- Brand Header -->
     <div id="brandHeader">
         <h1>🌈 Pelangi VR</h1>
-        <div class="subtitle">Introducing Legends and Origins of Sidoarjo Through VR Technology</div>
+        <div class="subtitle">Legends and Origins of Sidoarjo Through VR Technology</div>
     </div>
 
-    <!-- Navigation Menu -->
-    <div id="navMenu">
-        <div class="nav-item active" data-scene="origin">
-            <span class="nav-icon">🏛️</span>
-            <span>Origin of Sidoarjo</span>
-        </div>
-        <div class="nav-item" data-scene="legend1">
-            <span class="nav-icon">🐉</span>
-            <span>Brantas River Legend</span>
-        </div>
-        <div class="nav-item" data-scene="legend2">
-            <span class="nav-icon">🌊</span>
-            <span>Rawa Pening Story</span>
-        </div>
-        <div class="nav-item" data-scene="culture">
-            <span class="nav-icon">🎭</span>
-            <span>Local Culture</span>
-        </div>
-    </div>
-
-    <!-- Info Panel -->
-    <div id="infoPanel">
-        <h3>📖 About Sidoarjo</h3>
-        <p>Sidoarjo is known as the "City of Shrimp" and "Delta City" rich in history and ancestral legends.</p>
-        <p>Explore cultural heritage through immersive VR technology.</p>
+    <!-- Instructions -->
+    <div id="instructions">
+        Move your device to look around • Tap PLAY to start video
     </div>
 
     <!-- Play Button -->
     <button id="playButton">▶ PLAY VIDEO</button>
 
     <!-- VR Button -->
-    <button id="enterVR">🚀 START VR EXPERIENCE</button>
+    <button id="enterVR">ENTER VR</button>
 
     <!-- Loading Screen -->
     <div id="loading">
-        <div class="logo">
-            <span class="logo-gradient">PELANGI VR</span>
-        </div>
+        <div class="logo">PELANGI VR</div>
         <div class="spinner"></div>
-        <h2>Loading Sidoarjo VR Experience</h2>
-        <p>Initializing Virtual Reality technology...</p>
-        <p id="loadingStatus">Loading legends and historical content</p>
-    </div>
-
-    <!-- Unsupported Message -->
-    <div id="unsupported">
-        <h2>❌ Browser Doesn't Support VR</h2>
-        <p>Use Chrome, Firefox Reality, or Oculus Browser for best experience.</p>
+        <h2>Loading VR Experience</h2>
+        <p id="loadingStatus">Initializing...</p>
     </div>
 
     <!-- Three.js Library -->
@@ -301,35 +179,10 @@
         let scene, camera, renderer, video, videoTexture, sphere;
         let session = null;
         let isVRMode = false;
-        let currentScene = 'origin';
-
-        // Legend stories data
-        const legendsData = {
-            origin: {
-                title: "Origin of Sidoarjo Name",
-                story: "Sidoarjo comes from the words 'Sido' meaning 'become' and 'Arjo' meaning 'respected one'. This area has been known since the Kahuripan and Jenggala Kingdom era.",
-                videoUrl: "https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1&mute=1"
-            },
-            legend1: {
-                title: "Brantas River Legend",
-                story: "Brantas River is the longest river in East Java that plays a vital role in the historical development of Sidoarjo and surrounding areas.",
-                videoUrl: "https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1&mute=1"
-            },
-            legend2: {
-                title: "Rawa Pening Sidoarjo Story",
-                story: "Rawa Pening holds mystical stories about its origins associated with natural events and local community beliefs.",
-                videoUrl: "https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1&mute=1"
-            },
-            culture: {
-                title: "Culture and Traditions",
-                story: "Sidoarjo is rich in traditional arts like Ludruk, Wayang Kulit, and various customary ceremonies preserved to this day.",
-                videoUrl: "https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1&mute=1"
-            }
-        };
 
         // Initialize the application
         async function init() {
-            updateLoadingStatus('Preparing VR experience...');
+            updateLoadingStatus('Creating 3D scene...');
             
             try {
                 // Create scene
@@ -342,22 +195,53 @@
 
                 // Create renderer
                 renderer = new THREE.WebGLRenderer({ 
-                    antialias: true,
-                    alpha: false 
+                    antialias: true
                 });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
                 renderer.xr.enabled = true;
                 document.body.appendChild(renderer.domElement);
 
-                // Load initial scene
-                await loadScene(currentScene);
+                // Create sphere for 360 video
+                const geometry = new THREE.SphereGeometry(10, 64, 64);
+                geometry.scale(-1, 1, 1); // Flip inside out
+
+                // Create video element
+                video = document.createElement('video');
+                video.src = 'https://www.youtube.com/embed/5Jyx7XXESI4?autoplay=1&mute=1';
+                video.loop = true;
+                video.muted = true;
+                video.crossOrigin = "anonymous";
+                video.playsInline = true;
+
+                // Create video texture
+                videoTexture = new THREE.VideoTexture(video);
+                videoTexture.minFilter = THREE.LinearFilter;
+                videoTexture.magFilter = THREE.LinearFilter;
+
+                // Create material with video texture
+                const material = new THREE.MeshBasicMaterial({ 
+                    map: videoTexture,
+                    side: THREE.BackSide
+                });
+
+                // Create sphere mesh
+                sphere = new THREE.Mesh(geometry, material);
+                scene.add(sphere);
 
                 // Setup WebXR
                 setupWebXR();
 
-                // Setup navigation
-                setupNavigation();
+                // Setup play button
+                document.getElementById('playButton').addEventListener('click', async () => {
+                    try {
+                        await video.play();
+                        document.getElementById('playButton').style.display = 'none';
+                        document.getElementById('instructions').style.display = 'none';
+                    } catch (error) {
+                        console.error('Error playing video:', error);
+                    }
+                });
 
                 // Handle window resize
                 window.addEventListener('resize', onWindowResize);
@@ -374,80 +258,6 @@
             }
         }
 
-        // Load different scenes
-        async function loadScene(sceneType) {
-            updateLoadingStatus(`Loading ${legendsData[sceneType].title}...`);
-            
-            // Clear existing scene objects
-            while(scene.children.length > 0) { 
-                scene.remove(scene.children[0]); 
-            }
-
-            // Create sphere for 360 video
-            const geometry = new THREE.SphereGeometry(10, 64, 64);
-            geometry.scale(-1, 1, 1); // Flip inside out
-
-            // Create video element
-            if (video) {
-                video.pause();
-                video = null;
-            }
-
-            video = document.createElement('video');
-            video.src = legendsData[sceneType].videoUrl;
-            video.loop = true;
-            video.muted = true; // Required for autoplay
-            video.crossOrigin = "anonymous";
-            video.playsInline = true;
-            video.setAttribute('webkit-playsinline', '');
-            video.setAttribute('playsinline', '');
-
-            // Create video texture
-            if (videoTexture) {
-                videoTexture.dispose();
-            }
-            videoTexture = new THREE.VideoTexture(video);
-            videoTexture.minFilter = THREE.LinearFilter;
-            videoTexture.magFilter = THREE.LinearFilter;
-            videoTexture.encoding = THREE.sRGBEncoding;
-
-            // Create material with video texture
-            const material = new THREE.MeshBasicMaterial({ 
-                map: videoTexture,
-                side: THREE.BackSide
-            });
-
-            // Create sphere mesh
-            sphere = new THREE.Mesh(geometry, material);
-            scene.add(sphere);
-
-            // Update info panel
-            updateInfoPanel(sceneType);
-
-            // Show play button
-            document.getElementById('playButton').style.display = 'block';
-
-            // Attempt to play video
-            try {
-                await video.play();
-                console.log('Video autoplay successful');
-            } catch (error) {
-                console.log('Autoplay prevented, showing play button');
-                document.getElementById('playButton').style.display = 'block';
-                document.getElementById('playButton').textContent = '▶ PLAY VIDEO';
-            }
-        }
-
-        function updateInfoPanel(sceneType) {
-            const infoPanel = document.getElementById('infoPanel');
-            const data = legendsData[sceneType];
-            
-            infoPanel.innerHTML = `
-                <h3>${data.title}</h3>
-                <p>${data.story}</p>
-            `;
-        }
-
         function setupWebXR() {
             const button = document.getElementById('enterVR');
             
@@ -455,8 +265,6 @@
             if (navigator.xr) {
                 navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
                     if (supported) {
-                        button.textContent = '🚀 START VR EXPERIENCE';
-                        button.disabled = false;
                         button.style.display = 'block';
                         
                         button.addEventListener('click', async () => {
@@ -467,70 +275,29 @@
                             }
                         });
                     } else {
-                        showUnsupported('VR mode not supported in this browser');
+                        button.style.display = 'none';
                     }
-                }).catch(error => {
-                    console.error('Error checking XR support:', error);
-                    showUnsupported('Error checking VR support');
                 });
             } else {
-                showUnsupported('WebXR not available in this browser');
+                button.style.display = 'none';
             }
-        }
-
-        function setupNavigation() {
-            const navItems = document.querySelectorAll('.nav-item');
-            
-            navItems.forEach(item => {
-                item.addEventListener('click', async () => {
-                    // Update active state
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
-                    
-                    // Load new scene
-                    const sceneType = item.getAttribute('data-scene');
-                    currentScene = sceneType;
-                    await loadScene(sceneType);
-                });
-            });
-
-            // Play button event
-            document.getElementById('playButton').addEventListener('click', async () => {
-                if (video.paused) {
-                    try {
-                        await video.play();
-                        document.getElementById('playButton').style.display = 'none';
-                    } catch (error) {
-                        console.error('Error playing video:', error);
-                    }
-                }
-            });
         }
 
         async function startXR() {
             try {
-                updateLoadingStatus('Starting VR session...');
-                
-                session = await navigator.xr.requestSession('immersive-vr', {
-                    optionalFeatures: ['local-floor', 'bounded-floor']
-                });
-
+                session = await navigator.xr.requestSession('immersive-vr');
                 session.addEventListener('end', endXR);
 
                 await renderer.xr.setSession(session);
                 
                 isVRMode = true;
                 document.getElementById('enterVR').textContent = 'EXIT VR';
-                document.getElementById('infoPanel').style.display = 'none';
-                document.getElementById('navMenu').style.display = 'none';
+                document.getElementById('brandHeader').style.display = 'none';
                 document.getElementById('playButton').style.display = 'none';
-                
-                updateLoadingStatus('VR mode active!');
-                setTimeout(hideLoading, 1000);
+                document.getElementById('instructions').style.display = 'none';
 
             } catch (error) {
                 console.error('Error starting XR session:', error);
-                updateLoadingStatus('Failed to start VR: ' + error.message);
             }
         }
 
@@ -541,14 +308,8 @@
             }
             
             isVRMode = false;
-            document.getElementById('enterVR').textContent = '🚀 START VR EXPERIENCE';
-            document.getElementById('infoPanel').style.display = 'block';
-            document.getElementById('navMenu').style.display = 'block';
-            
-            // Show play button if video is paused
-            if (video && video.paused) {
-                document.getElementById('playButton').style.display = 'block';
-            }
+            document.getElementById('enterVR').textContent = 'ENTER VR';
+            document.getElementById('brandHeader').style.display = 'block';
         }
 
         function animate() {
@@ -577,12 +338,6 @@
             }
         }
 
-        function showUnsupported(message) {
-            document.getElementById('unsupported').style.display = 'block';
-            document.getElementById('enterVR').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
-        }
-
         function updateLoadingStatus(message) {
             const statusElement = document.getElementById('loadingStatus');
             if (statusElement) {
@@ -592,19 +347,6 @@
 
         // Start the application when the page loads
         window.addEventListener('DOMContentLoaded', init);
-
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (video) {
-                if (document.hidden) {
-                    if (!video.paused) video.pause();
-                } else {
-                    if (video.paused && isVRMode) {
-                        video.play().catch(console.error);
-                    }
-                }
-            }
-        });
 
     </script>
 </body>
