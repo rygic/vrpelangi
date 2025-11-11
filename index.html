@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelangi VR - Sidoarjo 360° Experience</title>
+    <title>Pelangi VR - Sidoarjo 360°</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
         * {
@@ -13,7 +13,7 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             overflow: hidden;
             background: #000;
         }
@@ -24,142 +24,248 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: #000;
+            color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10000;
-            color: white;
         }
         
-        .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+        #status {
+            margin-top: 20px;
             text-align: center;
         }
         
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid #fdbb2d;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px 0;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        #debug {
+        #error {
             position: fixed;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.8);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
             color: white;
-            padding: 10px;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 10001;
+            display: none;
+            border: 2px solid red;
+        }
+        
+        .test-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
             border-radius: 5px;
-            font-size: 0.8rem;
-            z-index: 1000;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
     <div id="loading">
-        <div class="logo">PELANGI VR</div>
-        <div id="status">Loading GitHub Pages VR Experience...</div>
-        <div class="spinner"></div>
+        <h2>Pelangi VR - GitHub Pages</h2>
+        <div id="status">Loading A-Frame...</div>
     </div>
 
-    <!-- Debug Info -->
-    <div id="debug">
-        GitHub Pages Ready | A-Frame Loaded
+    <!-- Error Message -->
+    <div id="error">
+        <h3>Video Loading Issue</h3>
+        <p id="error-message"></p>
+        <button class="test-btn" onclick="testBasicScene()">Test Basic 3D Scene</button>
+        <button class="test-btn" onclick="testDifferentVideo()">Try Different Video</button>
     </div>
 
     <!-- A-Frame Scene -->
     <a-scene vr-mode-ui="enabled: true">
         <a-assets>
-            <!-- Video yang dihosting eksternal (tidak ada CORS issues) -->
-            <video id="main-video" 
-                   autoplay
-                   loop
-                   muted
-                   playsinline
-                   webkit-playsinline>
+            <!-- Video dengan multiple fallbacks -->
+            <video id="video1" autoplay loop muted playsinline crossorigin="anonymous">
                 <source src="https://cdn.aframe.io/360-video-boilerplate/video-360.mp4" type="video/mp4">
             </video>
         </a-assets>
 
-        <a-videosphere src="#main-video" rotation="0 -90 0"></a-videosphere>
+        <!-- Video Sphere -->
+        <a-videosphere src="#video1" rotation="0 -90 0"></a-videosphere>
 
+        <!-- Camera -->
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
 
-        <!-- Basic scene elements -->
-        <a-entity geometry="primitive: box" material="color: #fdbb2d" position="0 2 -4"
-                 animation="property: rotation; to: 360 360 0; loop: true; dur: 10000">
-            <a-text value="SIDOARJO VR" align="center" position="0 1.2 0" color="#1a2a6c" scale="2 2 2"></a-text>
-        </a-entity>
-
+        <!-- Basic Lighting -->
         <a-light type="ambient" color="#444"></a-light>
         <a-light type="directional" color="#fff" intensity="0.8" position="0 1 1"></a-light>
     </a-scene>
 
     <script>
-        console.log('🚀 GitHub Pages VR Experience Starting...');
+        // Debug information
+        console.log('🔧 GitHub Pages VR Debug');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Online:', navigator.onLine);
         
-        // Test jika A-Frame loaded
-        if (typeof AFRAME !== 'undefined') {
-            console.log('✅ A-Frame successfully loaded');
-            document.getElementById('debug').innerHTML += ' | A-Frame: ✅';
-        } else {
-            console.error('❌ A-Frame not loaded');
-            document.getElementById('debug').innerHTML += ' | A-Frame: ❌';
-        }
-
-        const video = document.getElementById('main-video');
         const status = document.getElementById('status');
         const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const errorMsg = document.getElementById('error-message');
 
-        video.addEventListener('loadeddata', function() {
-            console.log('✅ Video loaded successfully');
-            status.textContent = 'Video loaded!';
-            document.getElementById('debug').innerHTML += ' | Video: ✅';
+        // Wait for A-Frame to initialize
+        window.addEventListener('load', function() {
+            console.log('✅ Page fully loaded');
+            status.textContent = 'A-Frame loaded, initializing video...';
+            
+            // Check if A-Frame is properly loaded
+            if (typeof AFRAME === 'undefined') {
+                showError('A-Frame failed to load. Check internet connection.');
+                return;
+            }
+            
+            initializeVideo();
         });
 
-        video.addEventListener('playing', function() {
-            console.log('▶️ Video started playing');
+        function initializeVideo() {
+            const video = document.getElementById('video1');
+            
+            if (!video) {
+                showError('Video element not found');
+                return;
+            }
+
+            // Video event listeners
+            video.addEventListener('loadstart', () => {
+                console.log('📥 Video load started');
+                status.textContent = 'Loading video...';
+            });
+
+            video.addEventListener('loadeddata', () => {
+                console.log('✅ Video data loaded');
+                console.log('Video dimensions:', video.videoWidth + 'x' + video.videoHeight);
+                status.textContent = 'Video loaded!';
+            });
+
+            video.addEventListener('canplay', () => {
+                console.log('🎯 Video can play');
+                status.textContent = 'Starting playback...';
+            });
+
+            video.addEventListener('playing', () => {
+                console.log('▶️ Video playing successfully!');
+                status.textContent = 'VR Experience Ready!';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 1000);
+            });
+
+            video.addEventListener('error', (e) => {
+                console.error('❌ Video error:', e);
+                console.error('Video error code:', video.error);
+                showError('Video failed to load: ' + (video.error ? video.error.message : 'Unknown error'));
+            });
+
+            // Try to play the video
             setTimeout(() => {
-                loading.style.display = 'none';
+                console.log('🎬 Attempting to play video...');
+                video.play().catch(error => {
+                    console.log('⚠️ Play failed:', error);
+                    // This is normal for autoplay restrictions
+                });
             }, 1000);
+
+            // Check video status after 3 seconds
+            setTimeout(() => {
+                checkVideoStatus();
+            }, 3000);
+        }
+
+        function checkVideoStatus() {
+            const video = document.getElementById('video1');
+            
+            if (!video) {
+                showError('Video element missing');
+                return;
+            }
+
+            console.log('🔍 Video Status Check:');
+            console.log('- Ready State:', getReadyState(video.readyState));
+            console.log('- Network State:', getNetworkState(video.networkState));
+            console.log('- Video Dimensions:', video.videoWidth + 'x' + video.videoHeight);
+            console.log('- Paused:', video.paused);
+            console.log('- Ended:', video.ended);
+            console.log('- Error:', video.error);
+
+            // If video has no dimensions after loading, it's likely a black screen issue
+            if (video.readyState >= 2 && video.videoWidth === 0 && video.videoHeight === 0) {
+                showError('Video loaded but has 0 dimensions. Format may be incompatible.');
+            }
+
+            // If still loading after 5 seconds, show options
+            if (video.readyState < 3) {
+                status.textContent = 'Taking longer than expected...';
+            }
+        }
+
+        function getReadyState(state) {
+            const states = ['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'];
+            return states[state] || state;
+        }
+
+        function getNetworkState(state) {
+            const states = ['NETWORK_EMPTY', 'NETWORK_IDLE', 'NETWORK_LOADING', 'NETWORK_NO_SOURCE'];
+            return states[state] || state;
+        }
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorDiv.style.display = 'block';
+            status.textContent = 'Error occurred';
+        }
+
+        function testBasicScene() {
+            // Switch to a basic 3D scene without video
+            const scene = document.querySelector('a-scene');
+            scene.innerHTML = `
+                <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+                <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+                <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+                <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+                <a-sky color="#ECECEC"></a-sky>
+                <a-entity camera look-controls position="0 1.6 0">
+                    <a-cursor></a-cursor>
+                </a-entity>
+            `;
+            loading.style.display = 'none';
+            errorDiv.style.display = 'none';
+        }
+
+        function testDifferentVideo() {
+            // Try a different video source
+            const video = document.getElementById('video1');
+            video.src = 'https://assets.codepen.io/1480814/360vid1.mp4';
+            video.load();
+            errorDiv.style.display = 'none';
+            status.textContent = 'Trying alternative video...';
+        }
+
+        // Global click handler to help with autoplay
+        document.addEventListener('click', function() {
+            const video = document.getElementById('video1');
+            if (video && video.paused) {
+                video.play().catch(e => {
+                    console.log('Manual play failed:', e);
+                });
+            }
         });
 
-        video.addEventListener('error', function(e) {
-            console.error('❌ Video error:', e);
-            status.textContent = 'Video error - check console';
-            document.getElementById('debug').innerHTML += ' | Video: ❌';
-        });
-
-        // Fallback hide loading
+        // Fallback: hide loading after 8 seconds
         setTimeout(() => {
             if (loading.style.display !== 'none') {
+                console.log('⏰ Fallback: Hiding loading screen');
                 loading.style.display = 'none';
-                console.log('⏰ Loading screen hidden by timeout');
             }
-        }, 5000);
-
-        // Log untuk debugging
-        console.log('🔧 Debug Information:');
-        console.log('- GitHub Pages: Should work fine');
-        console.log('- A-Frame: External CDN');
-        console.log('- Video: External CDN (no CORS issues)');
-        console.log('- HTTPS: Required for VR features');
+        }, 8000);
     </script>
 </body>
 </html>
