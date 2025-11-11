@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelangi VR - Fixed Video Playback</title>
+    <title>Pelangi VR - MOV Format with Autoplay Fix</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
         * {
@@ -107,7 +107,7 @@
             color: white;
             padding: 15px;
             border-radius: 10px;
-            max-width: 350px;
+            max-width: 400px;
             backdrop-filter: blur(10px);
             border-right: 4px solid #1a2a6c;
             pointer-events: auto;
@@ -117,6 +117,14 @@
             color: #fdbb2d;
             margin-bottom: 10px;
             font-size: 1.2rem;
+        }
+        
+        .format-info {
+            background: #2d5b2d;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9rem;
         }
         
         .source-buttons {
@@ -181,6 +189,22 @@
         .status-error { color: #f44336; }
         .status-warning { color: #ff9800; }
 
+        #autoplay-prompt {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1001;
+            display: none;
+            border: 3px solid #fdbb2d;
+            max-width: 400px;
+        }
+
         #credits {
             position: absolute;
             bottom: 10px;
@@ -201,6 +225,32 @@
             margin: 5px;
             font-weight: bold;
         }
+
+        .browser-support {
+            background: #1a2a6c;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.8rem;
+        }
+
+        #play-button {
+            background: #fdbb2d;
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        #play-button:hover {
+            background: #ffcc44;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -211,20 +261,31 @@
         <div class="loading-bar-container">
             <div class="loading-bar" id="loading-bar"></div>
         </div>
-        <div class="loading-text" id="loading-text">Loading VR Experience...</div>
+        <div class="loading-text" id="loading-text">Loading MOV 360° Video...</div>
+    </div>
+
+    <!-- Autoplay Prompt -->
+    <div id="autoplay-prompt">
+        <h3>🎬 Video Ready!</h3>
+        <p>Click the button below to start the VR experience</p>
+        <button id="play-button">▶️ START VR EXPERIENCE</button>
+        <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+            Autoplay is prevented by browser.<br>
+            Click to start playback.
+        </p>
     </div>
 
     <!-- Video Status -->
     <div id="video-status">
-        <h3 id="status-title">Video Status</h3>
+        <h3 id="status-title">MOV Video Status</h3>
         <p id="status-message"></p>
         <div id="troubleshoot-section" style="margin-top: 20px; display: none;">
-            <h4 style="color: #ff9800; margin-bottom: 10px;">Troubleshooting Steps:</h4>
-            <button class="troubleshoot-btn" onclick="switchSource('direct')">Try Direct Link</button>
-            <button class="troubleshoot-btn" onclick="switchSource('preview')">Try Preview Link</button>
-            <button class="troubleshoot-btn" onclick="location.reload()">Reload Page</button>
+            <h4 style="color: #ff9800; margin-bottom: 10px;">MOV Format Solutions:</h4>
+            <button class="troubleshoot-btn" onclick="switchSource('mov-direct')">MOV Direct</button>
+            <button class="troubleshoot-btn" onclick="switchSource('mov-preview')">MOV Preview</button>
+            <button class="troubleshoot-btn" onclick="switchSource('mp4-converted')">MP4 Converted</button>
         </div>
-        <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Try Current Source Again</button>
+        <button id="retry-btn" style="margin-top: 15px; padding: 10px 20px; background: #fdbb2d; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Retry Current Source</button>
     </div>
 
     <!-- UI Container -->
@@ -236,23 +297,35 @@
         
         <!-- Video Controls -->
         <div id="video-controls">
-            <h3>Video Sources</h3>
+            <h3>🎬 MOV Video Sources</h3>
+            
+            <div class="format-info">
+                <strong>Format: MOV (QuickTime)</strong><br>
+                Codec: H.264 | Resolution: 360°
+            </div>
+
+            <div class="browser-support">
+                <strong>Browser Support:</strong><br>
+                ✅ Safari (Mac/iOS)<br>
+                ⚠️ Chrome (Limited)<br>
+                ⚠️ Firefox (Limited)
+            </div>
+            
             <div class="source-buttons">
-                <button class="source-btn active" onclick="switchSource('direct')">Direct Download</button>
-                <button class="source-btn" onclick="switchSource('preview')">Preview Link</button>
-                <button class="source-btn" onclick="switchSource('embedded')">Embedded</button>
-                <button class="source-btn" onclick="switchSource('api')">API Link</button>
+                <button class="source-btn active" onclick="switchSource('mov-direct')">MOV Direct</button>
+                <button class="source-btn" onclick="switchSource('mov-preview')">MOV Preview</button>
+                <button class="source-btn" onclick="switchSource('mp4-converted')">MP4 Converted</button>
             </div>
             
             <div style="margin-top: 15px;">
                 <button class="control-btn" onclick="togglePlay()">⏯️ Play/Pause</button>
                 <button class="control-btn" onclick="toggleMute()">🔊 Toggle Sound</button>
-                <button class="control-btn" onclick="checkVideoStatus()">📊 Check Status</button>
+                <button class="control-btn" onclick="checkVideoStatus()">📊 Video Info</button>
             </div>
         </div>
         
         <div id="credits">
-            Pelangi VR Experience<br>
+            Pelangi VR Experience | MOV 360° Format<br>
             © 2025 Sidoarjo Heritage
         </div>
     </div>
@@ -260,37 +333,37 @@
     <!-- A-Frame Scene -->
     <a-scene>
         <a-assets>
-            <!-- Source 1: Direct Download Link -->
-            <video id="direct-video" autoplay loop muted crossorigin="anonymous" playsinline>
+            <!-- Source 1: Direct MOV from Google Drive -->
+            <video id="mov-direct-video" preload="none" crossorigin="anonymous" playsinline muted>
+                <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/quicktime">
                 <source src="https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/mp4">
             </video>
             
-            <!-- Source 2: Preview Link -->
-            <video id="preview-video" autoplay loop muted crossorigin="anonymous" playsinline>
-                <source src="https://drive.google.com/file/d/1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA/preview" type="video/mp4">
+            <!-- Source 2: MOV Preview Link -->
+            <video id="mov-preview-video" preload="none" crossorigin="anonymous" playsinline muted>
+                <source src="https://drive.google.com/file/d/1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA/preview" type="video/quicktime">
             </video>
             
-            <!-- Source 3: Embedded View -->
-            <video id="embedded-video" autoplay loop muted crossorigin="anonymous" playsinline>
-                <source src="https://drive.google.com/uc?export=view&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA" type="video/mp4">
-            </video>
-            
-            <!-- Source 4: API Link (requires API key) -->
-            <video id="api-video" autoplay loop muted crossorigin="anonymous" playsinline>
-                <source src="" type="video/mp4">
+            <!-- Source 3: Converted MP4 (Fallback) -->
+            <video id="mp4-converted-video" preload="none" crossorigin="anonymous" playsinline muted>
+                <!-- This would be your converted MP4 file -->
+                <source src="https://drive.google.com/uc?export=download&id=YOUR_CONVERTED_MP4_ID" type="video/mp4">
             </video>
         </a-assets>
 
-        <a-videosphere src="#direct-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
+        <a-videosphere src="#mov-direct-video" rotation="0 -90 0" id="video-sphere"></a-videosphere>
 
         <a-entity camera look-controls wasd-controls position="0 1.6 0">
             <a-cursor></a-cursor>
         </a-entity>
 
-        <!-- Scene elements -->
-        <a-entity geometry="primitive: box" material="color: #fdbb2d" position="3 1.5 -5"
-                 animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
-            <a-text value="Sidoarjo VR" align="center" position="0 0.8 0" color="#1a2a6c" scale="2 2 2"></a-text>
+        <!-- Interactive Elements -->
+        <a-entity id="legend-marker" 
+                  geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5" 
+                  material="color: #fdbb2d; shader: flat" 
+                  position="3 1.5 -5" 
+                  animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
+            <a-text value="Sidoarjo 360°" align="center" position="0 0.8 0" color="#1a2a6c" scale="2 2 2"></a-text>
         </a-entity>
 
         <a-light type="ambient" color="#4455aa"></a-light>
@@ -298,38 +371,38 @@
     </a-scene>
 
     <script>
-        // Video sources configuration
+        // Video sources configuration for MOV format
         const videoSources = {
-            'direct': {
-                id: 'direct-video',
-                name: 'Direct Download Link',
-                url: 'https://drive.google.com/uc?export=download&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA'
+            'mov-direct': {
+                id: 'mov-direct-video',
+                name: 'MOV Direct Download',
+                type: 'video/quicktime',
+                description: 'Direct MOV file from Google Drive'
             },
-            'preview': {
-                id: 'preview-video',
-                name: 'Preview Link', 
-                url: 'https://drive.google.com/file/d/1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA/preview'
+            'mov-preview': {
+                id: 'mov-preview-video', 
+                name: 'MOV Preview Link',
+                type: 'video/quicktime',
+                description: 'Google Drive preview link'
             },
-            'embedded': {
-                id: 'embedded-video',
-                name: 'Embedded View',
-                url: 'https://drive.google.com/uc?export=view&id=1j2axqoUr5kp5tIAutGOsZvBajzHKPUtA'
-            },
-            'api': {
-                id: 'api-video',
-                name: 'API Link',
-                url: ''
+            'mp4-converted': {
+                id: 'mp4-converted-video',
+                name: 'MP4 Converted',
+                type: 'video/mp4', 
+                description: 'Converted MP4 version (better compatibility)'
             }
         };
 
-        let currentSource = 'direct';
+        let currentSource = 'mov-direct';
         let currentVideo = null;
+        let isFirstPlay = true;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             currentVideo = document.getElementById(videoSources[currentSource].id);
             setupVideoListeners();
             simulateLoading();
+            checkMOVSupport();
         });
 
         function simulateLoading() {
@@ -338,15 +411,15 @@
             const loadingText = document.getElementById('loading-text');
             
             const interval = setInterval(() => {
-                progress += Math.random() * 15;
+                progress += Math.random() * 12;
                 if (progress > 100) progress = 100;
                 
                 loadingBar.style.width = `${progress}%`;
                 
-                if (progress < 40) loadingText.textContent = "Loading 3D environment...";
-                else if (progress < 70) loadingText.textContent = "Initializing video sources...";
-                else if (progress < 90) loadingText.textContent = "Almost ready...";
-                else loadingText.textContent = "Starting VR experience...";
+                if (progress < 30) loadingText.textContent = "Initializing MOV video support...";
+                else if (progress < 60) loadingText.textContent = "Checking format compatibility...";
+                else if (progress < 80) loadingText.textContent = "Loading 360° environment...";
+                else loadingText.textContent = "Finalizing VR experience...";
                 
                 if (progress === 100) {
                     clearInterval(interval);
@@ -354,7 +427,7 @@
                         document.getElementById('loading-screen').style.opacity = '0';
                         setTimeout(() => {
                             document.getElementById('loading-screen').style.display = 'none';
-                            checkVideoStatus();
+                            initializeVideoPlayback();
                         }, 1000);
                     }, 500);
                 }
@@ -367,13 +440,24 @@
                 if (video) {
                     video.addEventListener('loadeddata', () => {
                         if (source.id === videoSources[currentSource].id) {
-                            showStatus('success', `${source.name} loaded successfully!`);
+                            console.log(`✅ ${source.name} loaded successfully`);
+                        }
+                    });
+                    
+                    video.addEventListener('canplaythrough', () => {
+                        if (source.id === videoSources[currentSource].id && isFirstPlay) {
+                            console.log(`${source.name} ready to play through`);
                         }
                     });
                     
                     video.addEventListener('error', (e) => {
                         if (source.id === videoSources[currentSource].id) {
-                            showStatus('error', `Failed to load ${source.name}. Trying another source...`);
+                            const errorMsg = getVideoError(video.error);
+                            showStatus('error', 
+                                `❌ ${source.name} failed!\n` +
+                                `Error: ${errorMsg}\n` +
+                                `Format: ${source.type}`
+                            );
                             document.getElementById('troubleshoot-section').style.display = 'block';
                         }
                     });
@@ -381,10 +465,104 @@
             });
         }
 
+        function getVideoError(error) {
+            if (!error) return 'Unknown error';
+            
+            const errorCodes = {
+                1: 'MEDIA_ERR_ABORTED - Fetching process aborted',
+                2: 'MEDIA_ERR_NETWORK - Network error',
+                3: 'MEDIA_ERR_DECODE - Decoding error',
+                4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - Format not supported'
+            };
+            
+            return errorCodes[error.code] || `Error code: ${error.code}`;
+        }
+
+        function initializeVideoPlayback() {
+            console.log('🚀 Initializing video playback with autoplay pattern...');
+            
+            // Show autoplay prompt
+            document.getElementById('autoplay-prompt').style.display = 'block';
+            
+            // Try autoplay but expect it to be blocked
+            attemptAutoplay().then(success => {
+                if (success) {
+                    console.log('✅ Autoplay succeeded!');
+                    document.getElementById('autoplay-prompt').style.display = 'none';
+                    showStatus('success', 'Autoplay started successfully!', 3000);
+                } else {
+                    console.log('⚠️ Autoplay was prevented - showing play button');
+                    // Play button will handle user interaction
+                }
+            }).catch(error => {
+                console.log('❌ Autoplay failed:', error);
+                document.getElementById('autoplay-prompt').style.display = 'block';
+            });
+        }
+
+        function attemptAutoplay() {
+            return new Promise((resolve, reject) => {
+                const video = currentVideo;
+                
+                // Set video to play
+                video.loop = true;
+                video.muted = true; // Muted videos can usually autoplay
+                
+                const playPromise = video.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Autoplay started successfully
+                        isFirstPlay = false;
+                        resolve(true);
+                    }).catch(error => {
+                        // Autoplay was prevented
+                        console.log('Autoplay prevented:', error);
+                        resolve(false);
+                    });
+                } else {
+                    // Old browsers without promise support
+                    resolve(true);
+                }
+            });
+        }
+
+        function startVideoPlayback() {
+            console.log('🎬 Starting video playback via user interaction');
+            
+            const video = currentVideo;
+            video.loop = true;
+            
+            const playPromise = video.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Automatic playback started!
+                    console.log('✅ Playback started successfully');
+                    document.getElementById('autoplay-prompt').style.display = 'none';
+                    showStatus('success', 'VR experience started!', 2000);
+                    isFirstPlay = false;
+                }).catch(error => {
+                    // Auto-play was prevented
+                    console.log('❌ Playback failed:', error);
+                    showStatus('error', 
+                        `Playback failed: ${error.message}\n` +
+                        `Please try a different video source.`
+                    );
+                });
+            }
+        }
+
         function switchSource(sourceType) {
             // Update active button
             document.querySelectorAll('.source-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            // Stop current video
+            if (currentVideo) {
+                currentVideo.pause();
+                currentVideo.currentTime = 0;
+            }
             
             // Update current source
             currentSource = sourceType;
@@ -393,73 +571,91 @@
             // Update video sphere source
             document.getElementById('video-sphere').setAttribute('src', `#${source.id}`);
             
-            // Get video element
+            // Get new video element
             currentVideo = document.getElementById(source.id);
+            currentVideo.muted = true; // Ensure muted for autoplay
+            currentVideo.loop = true;
             
-            showStatus('warning', `Switching to ${source.name}...`);
+            console.log(`🔄 Switching to: ${source.name}`);
+            showStatus('warning', 
+                `Switching to: ${source.name}\n` +
+                `Format: ${source.type}`
+            );
             
-            // Try to play
+            // Load the new video
+            currentVideo.load();
+            
+            // Try to play after a short delay
             setTimeout(() => {
-                currentVideo.play().catch(e => {
-                    showStatus('error', `Playback failed: ${e.message}`);
+                attemptAutoplay().then(success => {
+                    if (!success) {
+                        document.getElementById('autoplay-prompt').style.display = 'block';
+                    }
                 });
             }, 1000);
             
-            // Hide troubleshoot section
             document.getElementById('troubleshoot-section').style.display = 'none';
         }
 
         function togglePlay() {
             if (currentVideo.paused) {
-                currentVideo.play().catch(e => {
-                    showStatus('error', 'Play failed: ' + e.message);
-                });
+                const playPromise = currentVideo.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        showStatus('success', 'Video playing', 2000);
+                    }).catch(error => {
+                        showStatus('error', 'Play failed: ' + error.message);
+                    });
+                }
             } else {
                 currentVideo.pause();
+                showStatus('warning', 'Video paused', 2000);
             }
         }
 
         function toggleMute() {
             currentVideo.muted = !currentVideo.muted;
-            showStatus('success', `Sound ${currentVideo.muted ? 'muted' : 'unmuted'}`);
+            showStatus('success', 
+                `Sound ${currentVideo.muted ? '🔇 muted' : '🔊 unmuted'}`
+            );
         }
 
         function checkVideoStatus() {
             const video = currentVideo;
-            let status = '';
+            const source = videoSources[currentSource];
             
-            status += `Source: ${videoSources[currentSource].name}\n`;
+            let status = `🎬 Video Information:\n\n`;
+            status += `Source: ${source.name}\n`;
+            status += `Format: ${source.type}\n`;
             status += `Ready State: ${getReadyState(video.readyState)}\n`;
-            status += `Network State: ${getNetworkState(video.networkState)}\n`;
             status += `Video Size: ${video.videoWidth}x${video.videoHeight}\n`;
-            status += `Duration: ${video.duration || 'Unknown'} seconds\n`;
-            status += `Current Time: ${video.currentTime.toFixed(2)}s\n`;
+            status += `Duration: ${video.duration ? video.duration.toFixed(1) + 's' : 'Unknown'}\n`;
+            status += `Current Time: ${video.currentTime.toFixed(1)}s\n`;
             status += `Muted: ${video.muted}\n`;
             status += `Paused: ${video.paused}\n`;
-            status += `Ended: ${video.ended}`;
+            status += `Loop: ${video.loop}\n`;
+            status += `Autoplay: ${video.autoplay}`;
             
-            showStatus('warning', status, 5000);
+            showStatus('warning', status, 6000);
         }
 
         function getReadyState(state) {
-            const states = {
-                0: 'HAVE_NOTHING',
-                1: 'HAVE_METADATA', 
-                2: 'HAVE_CURRENT_DATA',
-                3: 'HAVE_FUTURE_DATA',
-                4: 'HAVE_ENOUGH_DATA'
-            };
+            const states = ['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'];
             return states[state] || 'UNKNOWN';
         }
 
-        function getNetworkState(state) {
-            const states = {
-                0: 'NETWORK_EMPTY',
-                1: 'NETWORK_IDLE',
-                2: 'NETWORK_LOADING',
-                3: 'NETWORK_NO_SOURCE'
-            };
-            return states[state] || 'UNKNOWN';
+        function checkMOVSupport() {
+            const video = document.createElement('video');
+            const movSupport = video.canPlayType('video/quicktime');
+            
+            if (!movSupport || movSupport === '') {
+                showStatus('warning', 
+                    'MOV format may not be fully supported in your browser.\n' +
+                    'Recommend converting to MP4 for better compatibility.',
+                    5000
+                );
+            }
         }
 
         function showStatus(type, message, autoHide = null) {
@@ -467,10 +663,10 @@
             const statusMessage = document.getElementById('status-message');
             
             statusTitle.className = `status-${type}`;
-            statusTitle.textContent = type === 'success' ? 'Success!' :
-                                    type === 'error' ? 'Error!' : 'Information';
+            statusTitle.textContent = type === 'success' ? '✅ Success' :
+                                    type === 'error' ? '❌ Error' : '⚠️ Information';
                                     
-            statusMessage.textContent = message;
+            statusMessage.innerHTML = message.replace(/\n/g, '<br>');
             document.getElementById('video-status').style.display = 'block';
             
             if (autoHide) {
@@ -480,15 +676,30 @@
             }
         }
 
+        // Play button handler
+        document.getElementById('play-button').addEventListener('click', function() {
+            startVideoPlayback();
+        });
+
         // Retry button handler
         document.getElementById('retry-btn').addEventListener('click', function() {
+            showStatus('warning', 'Retrying current video source...');
             currentVideo.load();
             setTimeout(() => {
-                currentVideo.play().catch(e => {
-                    showStatus('error', 'Retry failed: ' + e.message);
+                attemptAutoplay().then(success => {
+                    if (!success) {
+                        document.getElementById('autoplay-prompt').style.display = 'block';
+                    }
                 });
-            }, 500);
+            }, 1000);
         });
+
+        // Browser compatibility info
+        console.log('🎯 Autoplay Strategy:');
+        console.log('- Preload: none (save bandwidth)');
+        console.log- Muted: true (required for autoplay)');
+        console.log('- Loop: true (for continuous playback)');
+        console.log('- User interaction required for sound');
     </script>
 </body>
 </html>
